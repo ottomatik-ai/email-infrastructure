@@ -1,0 +1,30 @@
+{
+  "otto_mailboxes": [
+    {
+      "name": "ottomatik-ai-main",
+      "email": "contact@ottomatik.ai",
+      "imap_server": "imap.migadu.com",
+      "imap_port": 993,
+      "security": "SSL/TLS",
+      "purpose": "Main contact email",
+      "webhook_enabled": true,
+      "n8n_workflow": "ottomatik-contact-processing"
+    },
+    {
+      "name": "ottomatik-ai-support",
+      "email": "support@ottomatik.ai", 
+      "imap_server": "imap.migadu.com",
+      "imap_port": 993,
+      "security": "SSL/TLS",
+      "purpose": "Support requests",
+      "webhook_enabled": true,
+      "n8n_workflow": "ottomatik-support-processing"
+    }
+  ],
+  "migadu_settings": {
+    "imap_server": "imap.migadu.com",
+    "imap_port": 993,
+    "security": "SSL/TLS",
+    "provider": "Migadu"
+  }
+}

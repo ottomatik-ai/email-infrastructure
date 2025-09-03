@@ -1,0 +1,20 @@
+{
+  "webhook_configurations": [
+    {
+      "name": "ottomatik-contact-webhook",
+      "url": "http://your-n8n-instance/webhook/ottomatik-contact",
+      "purpose": "Process ottomatik.ai contact emails",
+      "mailbox": "contact@ottomatik.ai",
+      "status": "active"
+    },
+    {
+      "name": "ottomatik-support-webhook", 
+      "url": "http://your-n8n-instance/webhook/ottomatik-support",
+      "purpose": "Process ottomatik.ai support emails",
+      "mailbox": "support@ottomatik.ai",
+      "status": "active"
+    }
+  ],
+  "webhook_base_url": "http://your-n8n-instance/webhook/",
+  "notes": "Update URLs with your actual n8n instance URL"
+}

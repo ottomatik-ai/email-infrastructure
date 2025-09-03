@@ -1,0 +1,17 @@
+{
+  "client_slug": "{slug}",
+  "client_name": "CLIENT_NAME",
+  "mailboxes": [
+    {
+      "name": "client-main",
+      "email": "contact@clientdomain.com",
+      "imap_server": "imap.migadu.com",
+      "imap_port": 993,
+      "security": "SSL/TLS",
+      "purpose": "Main contact email",
+      "webhook_enabled": true,
+      "n8n_workflow": "client-contact-processing"
+    }
+  ],
+  "notes": "Replace {slug} with client slug, CLIENT_NAME with actual client name, and update email addresses"
+}
