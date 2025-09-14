@@ -1,17 +1,29 @@
 {
   "client_slug": "{slug}",
-  "client_name": "CLIENT_NAME",
   "mailboxes": [
     {
-      "name": "client-main",
+      "name": "{slug}-main-contact",
       "email": "contact@clientdomain.com",
-      "imap_server": "imap.migadu.com",
-      "imap_port": 993,
-      "security": "SSL/TLS",
-      "purpose": "Main contact email",
+      "from_name": "CLIENT_CONTACT_NAME",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "contact@clientdomain.com",
+          "pass": "CLIENT_EMAIL_PASSWORD"
+        }
+      },
       "webhook_enabled": true,
-      "n8n_workflow": "client-contact-processing"
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/{slug}-inbox-management"
     }
   ],
-  "notes": "Replace {slug} with client slug, CLIENT_NAME with actual client name, and update email addresses"
+  "migadu_settings": {
+    "imap_server": "imap.migadu.com",
+    "imap_port": 993,
+    "security": "SSL/TLS",
+    "provider": "Migadu",
+    "domains": ["clientdomain.com"]
+  },
+  "notes": "Replace {slug} with client slug, CLIENT_CONTACT_NAME with actual contact name, CLIENT_EMAIL_PASSWORD with actual password, and update email addresses and domains"
 }

@@ -1,0 +1,797 @@
+{
+  "client_slug": "ptc",
+  "mailboxes": [
+    {
+      "name": "ptc-jeffrey-ptcgrowth-com",
+      "email": "jeffrey@ptcgrowth.com",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey@ptcgrowth.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-sesol-ptcgrowth-com",
+      "email": "jeffrey.sesol@ptcgrowth.com",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey.sesol@ptcgrowth.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-ptcgrowth-com",
+      "email": "jeff@ptcgrowth.com",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff@ptcgrowth.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-sesol-ptcgrowth-com",
+      "email": "jeff.sesol@ptcgrowth.com",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff.sesol@ptcgrowth.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-ptcgrowth-net",
+      "email": "jeffrey@ptcgrowth.net",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey@ptcgrowth.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-sesol-ptcgrowth-net",
+      "email": "jeffrey.sesol@ptcgrowth.net",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey.sesol@ptcgrowth.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-ptcgrowth-net",
+      "email": "jeff@ptcgrowth.net",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff@ptcgrowth.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-sesol-ptcgrowth-net",
+      "email": "jeff.sesol@ptcgrowth.net",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff.sesol@ptcgrowth.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-ptccoaching-net",
+      "email": "jeffrey@ptccoaching.net",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey@ptccoaching.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-sesol-ptccoaching-net",
+      "email": "jeffrey.sesol@ptccoaching.net",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey.sesol@ptccoaching.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-ptccoaching-net",
+      "email": "jeff@ptccoaching.net",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff@ptccoaching.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-sesol-ptccoaching-net",
+      "email": "jeff.sesol@ptccoaching.net",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff.sesol@ptccoaching.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-ptcgrowyourpeople-com",
+      "email": "jeffrey@ptcgrowyourpeople.com",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey@ptcgrowyourpeople.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-sesol-ptcgrowyourpeople-com",
+      "email": "jeffrey.sesol@ptcgrowyourpeople.com",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey.sesol@ptcgrowyourpeople.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-ptcgrowyourpeople-com",
+      "email": "jeff@ptcgrowyourpeople.com",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff@ptcgrowyourpeople.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-sesol-ptcgrowyourpeople-com",
+      "email": "jeff.sesol@ptcgrowyourpeople.com",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff.sesol@ptcgrowyourpeople.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-ptcgrowyourpeople-net",
+      "email": "jeffrey@ptcgrowyourpeople.net",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey@ptcgrowyourpeople.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-sesol-ptcgrowyourpeople-net",
+      "email": "jeffrey.sesol@ptcgrowyourpeople.net",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey.sesol@ptcgrowyourpeople.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-ptcgrowyourpeople-net",
+      "email": "jeff@ptcgrowyourpeople.net",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff@ptcgrowyourpeople.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-sesol-ptcgrowyourpeople-net",
+      "email": "jeff.sesol@ptcgrowyourpeople.net",
+      "from_name": "Jeff Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff.sesol@ptcgrowyourpeople.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-ptcgrow-net",
+      "email": "jeff@ptcgrow.net",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff@ptcgrow.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-sesol-ptcgrow-net",
+      "email": "jeff.sesol@ptcgrow.net",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff.sesol@ptcgrow.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-ptcgrow-net",
+      "email": "jeffrey@ptcgrow.net",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey@ptcgrow.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-sesol-ptcgrow-net",
+      "email": "jeffrey.sesol@ptcgrow.net",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey.sesol@ptcgrow.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-ptcgrow-com",
+      "email": "jeff@ptcgrow.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff@ptcgrow.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-sesol-ptcgrow-com",
+      "email": "jeff.sesol@ptcgrow.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff.sesol@ptcgrow.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-ptcgrow-com",
+      "email": "jeffrey@ptcgrow.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey@ptcgrow.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-sesol-ptcgrow-com",
+      "email": "jeffrey.sesol@ptcgrow.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey.sesol@ptcgrow.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-ptccoach-net",
+      "email": "jeff@ptccoach.net",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff@ptccoach.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-sesol-ptccoach-net",
+      "email": "jeff.sesol@ptccoach.net",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff.sesol@ptccoach.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-ptccoach-net",
+      "email": "jeffrey@ptccoach.net",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey@ptccoach.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-sesol-ptccoach-net",
+      "email": "jeffrey.sesol@ptccoach.net",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey.sesol@ptccoach.net",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-ptccoach-com",
+      "email": "jeff@ptccoach.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff@ptccoach.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-sesol-ptccoach-com",
+      "email": "jeff.sesol@ptccoach.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff.sesol@ptccoach.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-ptccoach-com",
+      "email": "jeffrey@ptccoach.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey@ptccoach.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-sesol-ptccoach-com",
+      "email": "jeffrey.sesol@ptccoach.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey.sesol@ptccoach.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-pullthechutecoaching-com",
+      "email": "jeff@pullthechutecoaching.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff@pullthechutecoaching.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-sesol-pullthechutecoaching-com",
+      "email": "jeff.sesol@pullthechutecoaching.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff.sesol@pullthechutecoaching.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-pullthechutecoaching-com",
+      "email": "jeffrey@pullthechutecoaching.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey@pullthechutecoaching.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-sesol-pullthechutecoaching-com",
+      "email": "jeffrey.sesol@pullthechutecoaching.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey.sesol@pullthechutecoaching.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-pullthechutecoach-com",
+      "email": "jeff@pullthechutecoach.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff@pullthechutecoach.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-sesol-pullthechutecoach-com",
+      "email": "jeff.sesol@pullthechutecoach.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff.sesol@pullthechutecoach.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-pullthechutecoach-com",
+      "email": "jeffrey@pullthechutecoach.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey@pullthechutecoach.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-sesol-pullthechutecoach-com",
+      "email": "jeffrey.sesol@pullthechutecoach.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey.sesol@pullthechutecoach.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-pullthechuteteam-com",
+      "email": "jeff@pullthechuteteam.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff@pullthechuteteam.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeff-sesol-pullthechuteteam-com",
+      "email": "jeff.sesol@pullthechuteteam.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeff.sesol@pullthechuteteam.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-pullthechuteteam-com",
+      "email": "jeffrey@pullthechuteteam.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey@pullthechuteteam.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    },
+    {
+      "name": "ptc-jeffrey-sesol-pullthechuteteam-com",
+      "email": "jeffrey.sesol@pullthechuteteam.com",
+      "from_name": "Jeffrey Sesol",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "jeffrey.sesol@pullthechuteteam.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management"
+    }
+  ],
+  "migadu_settings": {
+    "imap_server": "imap.migadu.com",
+    "imap_port": 993,
+    "security": "SSL/TLS",
+    "provider": "Migadu",
+    "domains": [
+      "ptcgrowth.com",
+      "ptcgrowth.net", 
+      "ptccoaching.net",
+      "ptcgrowyourpeople.com",
+      "ptcgrowyourpeople.net",
+      "ptcgrow.net",
+      "ptcgrow.com",
+      "ptccoach.net",
+      "ptccoach.com",
+      "pullthechutecoaching.com",
+      "pullthechutecoach.com",
+      "pullthechuteteam.com"
+    ]
+  },
+  "notes": "Pull The Chute (PTC) mailboxes configuration - All emails routed through Migadu IMAP server. Total of 48 email addresses across 12 domains. Password: T0v!Pv90iHYfr20g"
+}
+
+
+

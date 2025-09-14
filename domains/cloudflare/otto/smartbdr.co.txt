@@ -1,0 +1,9 @@
+smartbdr.co.	1	IN	A	75.2.60.5 ; cf_tags=cf-proxied:false
+www.smartbdr.co.	1	IN	CNAME	sensational-gnome-9c8637.netlify.app. ; cf_tags=cf-proxied:false
+psrp.smartbdr.co.	300	IN	CNAME	rp.postal.ottomatik.ai. ; cf_tags=cf-proxied:false
+track.smartbdr.co.	1	IN	CNAME	postal.ottomatik.ai. ; cf_tags=cf-proxied:false
+smartbdr.co.	300	IN	MX	10	mx.postal.ottomatik.ai.
+smartbdr.co.	300	IN	TXT	"v=spf1 a mx include:spf.postal.ottomatik.ai include:_spf.sparkpostmail.com ~all"
+_dmarc.smartbdr.co.	300	IN	TXT	"v=DMARC1; p=reject; rua=mailto:bryce@ottomatik.ai"
+postal-yigzAd._domainkey.smartbdr.co.	300	IN	TXT	"v=DKIM1; t=s; h=sha256; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCsN3a+vTUtEUyHXsxvbmNu9NlfowOrWOKee/bbR/a+Rvqjji5a04nL2NfF8tgl0i98zU0okXFAx1IMMhvjBtfIPDoi5+opq+k4+74aAzXE0o2VpyRh0RJaUdNJi9WtcDQtPEP2d2jua85LDsvQh8CCTZVRj8NLW+lTM7Xt+BFDJQIDAQAB"
+scph0725._domainkey.smartbdr.co.	300	IN	TXT	"v=DKIM1; k=rsa; h=sha256; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC3mMenZVQ3VxJoNxGvc988B7pdHKNXa61u19CUKY70loLKMUyYWXgIBZ0paQ0FPOZA+EFGC1QUA1fVo9C+t6eKraW+JuAIPyaRIOcUIQcf7BXtyV7kx8kBZrSyyyJAYXT+6/MZHBAViZ1EhEEegEkk/vVyIk83S01l7EyKyQLiiwIDAQAB"

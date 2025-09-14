@@ -1,0 +1,9 @@
+aibdrsys.com.	1	IN	A	75.2.60.5 ; cf_tags=cf-proxied:false
+www.aibdrsys.com.	1	IN	CNAME	sensational-gnome-9c8637.netlify.app. ; cf_tags=cf-proxied:false
+psrp.aibdrsys.com.	300	IN	CNAME	rp.postal.ottomatik.ai. ; cf_tags=cf-proxied:false
+track.aibdrsys.com.	1	IN	CNAME	postal.ottomatik.ai. ; cf_tags=cf-proxied:false
+aibdrsys.com.	300	IN	MX	10	mx.postal.ottomatik.ai.
+aibdrsys.com.	300	IN	TXT	"v=spf1 a mx include:spf.postal.ottomatik.ai include:_spf.sparkpostmail.com ~all"
+_dmarc.aibdrsys.com.	300	IN	TXT	"v=DMARC1; p=reject; rua=mailto:bryce@ottomatik.ai"
+postal-QbXtur._domainkey.aibdrsys.com.	300	IN	TXT	"v=DKIM1; t=s; h=sha256; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDhpv6q8bTsEnvGfs+4vchKQCgWEdIz0CoaBUe41C7S3wFM+qV3izGL+9jZVhTB6oOJIt3GxzACxXZN/Jkag2t/r14RWw/+OjAmRRuUi7Y+rIVsBBE7GxdhD1ELoR0ATJq5LdaU2Ygx53Chvc2Ccx5Qp3Euz+dD0lhFBp2jruLTUQIDAQAB"
+scph0725._domainkey.aibdrsys.com.	300	IN	TXT	"v=DKIM1; k=rsa; h=sha256; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDIIg0HlubiMHYBUBb0b4RiPuGF21HuLLtoDomJNMWYyp0m6+wcB4FpGFFCJmXvkQXRcTOSkv9FmXzi/ts5D4WkHCTBXW7CIFznSefGxTPL1zcg4V/x+Ex+eJhRjhuVkOlhR13EYoxNkMleuF7nfA3/w1mUDj5AWTuEQ4TJdHjAxQIDAQAB"

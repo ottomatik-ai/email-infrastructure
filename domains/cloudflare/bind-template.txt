@@ -1,0 +1,41 @@
+;;
+;; Essential DNS Records Template
+;; Domain: {DOMAIN}
+;; Purpose: Email infrastructure DNS configuration
+;;
+;; IMPORTANT: ALL RECORDS MUST BE DNS-ONLY (NO PROXY) IN CLOUDFLARE
+;; - Disable Cloudflare proxy (orange cloud OFF)
+;; - Email records require direct DNS resolution
+;; - Proxy breaks email authentication and delivery
+;;
+;; This template contains only the essential DNS records needed for
+;; email infrastructure. Remove nameserver records and Cloudflare-specific
+;; details before using as reference.
+;;
+
+;; A Records (Root Domain)
+{DOMAIN}.	1	IN	A	{NETLIFY_IP}
+
+;; CNAME Records
+www.{DOMAIN}.	1	IN	CNAME	{NETLIFY_SITE}.netlify.app.
+
+;; MX Records (Email)
+{DOMAIN}.	300	IN	MX	10 aspmx1.migadu.com.
+{DOMAIN}.	300	IN	MX	20 aspmx2.migadu.com.
+
+;; DKIM Records (Migadu)
+key1._domainkey.{DOMAIN}.	300	IN	CNAME	key1.{DOMAIN}._domainkey.migadu.com.
+key2._domainkey.{DOMAIN}.	300	IN	CNAME	key2.{DOMAIN}._domainkey.migadu.com.
+key3._domainkey.{DOMAIN}.	300	IN	CNAME	key3.{DOMAIN}._domainkey.migadu.com.
+
+;; SPF Record (Email Authentication)
+{DOMAIN}.	300	IN	TXT	"v=spf1 include:_spf.sparkpostmail.com -all"
+
+;; DMARC Record (Email Security)
+_dmarc.{DOMAIN}.	300	IN	TXT	"v=DMARC1; p=reject; rua=mailto:bryce@ottomatik.ai"
+
+;; Migadu Verification
+{DOMAIN}.	300	IN	TXT	"hosted-email-verify={MIGADU_VERIFICATION_CODE}"
+
+;; DKIM Public Key (SparkPost)
+{DKIM_SELECTOR}._domainkey.{DOMAIN}.	300	IN	TXT	"v=DKIM1; k=rsa; h=sha256; p={DKIM_PUBLIC_KEY}"

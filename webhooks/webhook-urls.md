@@ -32,3 +32,11 @@
 - Replace `your-n8n-instance` with actual n8n URL
 - Update status when webhooks are added/removed
 - Keep this file synchronized with actual webhook configurations
+
+
+
+
+
+
+
+

@@ -1,0 +1,38 @@
+;;
+;; Example DNS Configuration
+;; Domain: ptcgrowyourpeople.net
+;; Based on actual Cloudflare export
+;;
+;; ⚠️ CRITICAL: ALL RECORDS MUST BE DNS-ONLY (NO PROXY) IN CLOUDFLARE
+;; - Disable Cloudflare proxy (orange cloud OFF) for ALL records
+;; - Email records require direct DNS resolution
+;; - Proxy breaks email authentication and delivery
+;; - Netlify integration requires DNS-only records
+;;
+
+;; A Records (Root Domain)
+ptcgrowyourpeople.net.	1	IN	A	75.2.60.5
+
+;; CNAME Records
+www.ptcgrowyourpeople.net.	1	IN	CNAME	glittering-daifuku-9f7966.netlify.app.
+
+;; MX Records (Email)
+ptcgrowyourpeople.net.	300	IN	MX	10 aspmx1.migadu.com.
+ptcgrowyourpeople.net.	300	IN	MX	20 aspmx2.migadu.com.
+
+;; DKIM Records (Migadu)
+key1._domainkey.ptcgrowyourpeople.net.	300	IN	CNAME	key1.ptcgrowyourpeople.net._domainkey.migadu.com.
+key2._domainkey.ptcgrowyourpeople.net.	300	IN	CNAME	key2.ptcgrowyourpeople.net._domainkey.migadu.com.
+key3._domainkey.ptcgrowyourpeople.net.	300	IN	CNAME	key3.ptcgrowyourpeople.net._domainkey.migadu.com.
+
+;; SPF Record (Email Authentication)
+ptcgrowyourpeople.net.	300	IN	TXT	"v=spf1 include:_spf.sparkpostmail.com -all"
+
+;; DMARC Record (Email Security)
+_dmarc.ptcgrowyourpeople.net.	300	IN	TXT	"v=DMARC1; p=reject; rua=mailto:bryce@ottomatik.ai"
+
+;; Migadu Verification
+ptcgrowyourpeople.net.	300	IN	TXT	"hosted-email-verify=si6nuuj5"
+
+;; DKIM Public Key (SparkPost)
+scph0925._domainkey.ptcgrowyourpeople.net.	300	IN	TXT	"v=DKIM1; k=rsa; h=sha256; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDBA/7QI4Llfu4wat1DjzH5FBLDDet2YijccJ0PxFVMNGsip8YDKfakuDYZ/oxr9VyNElm7kBNvF0gRb1G5cemD0T554g+9Q+sO9pxnlM6XDt+m3qTOK6DjbSrVGsGFrU/a5lKOvC22Qm2pPiNxFt72qOmCwtOIobVlIABZ3b64XQIDAQAB"

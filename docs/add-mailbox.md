@@ -18,17 +18,20 @@
 curl -X POST http://98.81.118.238:3000/api/accounts \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "mailbox-name",
+    "name": "client-slug-email-identifier",
     "email": "email@domain.com",
+    "from_name": "Contact Name",
     "imap": {
       "host": "imap.migadu.com",
       "port": 993,
       "secure": true,
       "auth": {
         "user": "email@domain.com",
-        "pass": "password"
+        "pass": "email-password"
       }
-    }
+    },
+    "webhook_enabled": true,
+    "n8n_workflow": "https://n8n.ottomatik.ai/webhook/client-slug-inbox-management"
   }'
 ```
 

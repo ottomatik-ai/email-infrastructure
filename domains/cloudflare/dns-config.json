@@ -1,0 +1,57 @@
+{
+  "cloudflare_settings": {
+    "nameserver_provider": "Cloudflare",
+    "dns_management": "Cloudflare DNS",
+    "security_features": [
+      "SSL/TLS encryption",
+      "DDoS protection", 
+      "Web Application Firewall",
+      "Bot management"
+    ]
+  },
+  "domain_purchasing": {
+    "sellers": [
+      "GoDaddy",
+      "Namecheap", 
+      "Google Domains",
+      "Cloudflare Registrar"
+    ],
+    "process": [
+      "1. Purchase domain from seller",
+      "2. Change nameservers to Cloudflare",
+      "3. Configure DNS records in Cloudflare",
+      "4. Set up Netlify forwarding",
+      "5. Configure email routing"
+    ]
+  },
+  "dns_records": {
+    "required_records": [
+      {
+        "type": "A",
+        "name": "@",
+        "content": "Netlify IP",
+        "ttl": 1,
+        "proxied": true
+      },
+      {
+        "type": "CNAME", 
+        "name": "www",
+        "content": "netlify-domain.netlify.app",
+        "ttl": 1,
+        "proxied": true
+      },
+      {
+        "type": "MX",
+        "name": "@",
+        "content": "mail.migadu.com",
+        "priority": 10,
+        "ttl": 1,
+        "proxied": false
+      }
+    ]
+  },
+  "notes": "All domains use Cloudflare nameservers for DNS management and security features"
+}
+
+
+

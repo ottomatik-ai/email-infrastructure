@@ -1,0 +1,9 @@
+ottobdrsys.com.	1	IN	A	75.2.60.5 ; cf_tags=cf-proxied:false
+www.ottobdrsys.com.	1	IN	CNAME	sensational-gnome-9c8637.netlify.app. ; cf_tags=cf-proxied:false
+psrp.ottobdrsys.com.	300	IN	CNAME	rp.postal.ottomatik.ai. ; cf_tags=cf-proxied:false
+track.ottobdrsys.com.	1	IN	CNAME	postal.ottomatik.ai. ; cf_tags=cf-proxied:false
+ottobdrsys.com.	300	IN	MX	10	mx.postal.ottomatik.ai.
+ottobdrsys.com.	300	IN	TXT	"v=spf1 a mx include:spf.postal.ottomatik.ai include:_spf.sparkpostmail.com ~all"
+_dmarc.ottobdrsys.com.	300	IN	TXT	"v=DMARC1; p=reject; rua=mailto:bryce@ottomatik.ai"
+postal-bFnOqW._domainkey.ottobdrsys.com.	300	IN	TXT	"v=DKIM1; t=s; h=sha256; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC/wDoHomxOsay/hhSzsN65FSTz1utvPUDHbQSasrSE3UPoJaVEaaQzouJmIN027C8JkOmKO0UXW1J8gRTQiz46T6/8Gy8j+6q1pnCEYYjho+RLosAycBG+RCSKLS5lC4SJgkGpYhbdeJOciEeXVdxeQ9aapRhfBcG2cwKQZLajnwIDAQAB"
+scph0725._domainkey.ottobdrsys.com.	300	IN	TXT	"v=DKIM1; k=rsa; h=sha256; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCuKMFHc/+qpAv5Uj0qi4KTK+Vc4tQMdKa2wZu3jnOpmEpmbjLoxYdkS3zR46Ro+0tId7D6naur0re672YZvtxtJZLy0cjTdTA6sDfcTNipg1nWCrt1L3M46S2z226JDEjw+LxLzhN82m7PhxYk5KFtjkR1K+7mRpZwpkNnEzYfzQIDAQAB"

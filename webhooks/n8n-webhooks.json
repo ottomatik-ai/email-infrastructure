@@ -2,19 +2,62 @@
   "webhook_configurations": [
     {
       "name": "ottomatik-contact-webhook",
-      "url": "http://your-n8n-instance/webhook/ottomatik-contact",
+      "url": "https://n8n.ottomatik.ai/webhook/ottomatik-contact",
       "purpose": "Process ottomatik.ai contact emails",
       "mailbox": "contact@ottomatik.ai",
       "status": "active"
     },
     {
       "name": "ottomatik-support-webhook", 
-      "url": "http://your-n8n-instance/webhook/ottomatik-support",
+      "url": "https://n8n.ottomatik.ai/webhook/ottomatik-support",
       "purpose": "Process ottomatik.ai support emails",
       "mailbox": "support@ottomatik.ai",
       "status": "active"
+    },
+    {
+      "name": "ptc-inbox-management",
+      "url": "https://n8n.ottomatik.ai/webhook/ptc-inbox-management",
+      "purpose": "Process all PTC email replies and inbox management",
+      "mailbox": "All PTC email addresses (48 total)",
+      "status": "active",
+      "client": "ptc",
+      "domains": [
+        "ptcgrowth.com",
+        "ptcgrowth.net", 
+        "ptccoaching.net",
+        "ptcgrowyourpeople.com",
+        "ptcgrowyourpeople.net",
+        "ptcgrow.net",
+        "ptcgrow.com",
+        "ptccoach.net",
+        "ptccoach.com",
+        "pullthechutecoaching.com",
+        "pullthechutecoach.com",
+        "pullthechuteteam.com"
+      ],
+      "webhook_settings": {
+        "send_all_messages": true,
+        "include_attachments": true,
+        "include_thread_info": true,
+        "retry_attempts": 3,
+        "timeout_seconds": 30
+      }
     }
   ],
-  "webhook_base_url": "http://your-n8n-instance/webhook/",
-  "notes": "Update URLs with your actual n8n instance URL"
+  "webhook_base_url": "https://n8n.ottomatik.ai/webhook/",
+  "imap_api_settings": {
+    "server_url": "http://98.81.118.238:3000",
+    "redis_connection": "n8n_ottomatik_ai_otto-redis:6379/7",
+    "polling_interval": 30,
+    "batch_size": 50
+  },
+  "notes": "PTC webhook configured to receive all messages from 48 email accounts"
 }
+
+
+
+
+
+
+
+

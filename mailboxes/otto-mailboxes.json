@@ -1,30 +1,746 @@
 {
-  "otto_mailboxes": [
+  "client_slug": "otto",
+  "mailboxes": [
     {
-      "name": "ottomatik-ai-main",
-      "email": "contact@ottomatik.ai",
-      "imap_server": "imap.migadu.com",
-      "imap_port": 993,
-      "security": "SSL/TLS",
-      "purpose": "Main contact email",
+      "name": "otto-bryce-smarterbdrsys-com",
+      "email": "bryce@smarterbdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce@smarterbdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
       "webhook_enabled": true,
-      "n8n_workflow": "ottomatik-contact-processing"
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
     },
     {
-      "name": "ottomatik-ai-support",
-      "email": "support@ottomatik.ai", 
-      "imap_server": "imap.migadu.com",
-      "imap_port": 993,
-      "security": "SSL/TLS",
-      "purpose": "Support requests",
+      "name": "otto-bryce-h-smarterbdrsys-com",
+      "email": "bryce.h@smarterbdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.h@smarterbdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
       "webhook_enabled": true,
-      "n8n_workflow": "ottomatik-support-processing"
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-b-henderson-smarterbdrsys-com",
+      "email": "b.henderson@smarterbdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "b.henderson@smarterbdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-henderson-smarterbdrsys-com",
+      "email": "bryce.henderson@smarterbdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.henderson@smarterbdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-smarterbdr-com",
+      "email": "bryce@smarterbdr.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce@smarterbdr.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-h-smarterbdr-com",
+      "email": "bryce.h@smarterbdr.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.h@smarterbdr.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-b-henderson-smarterbdr-com",
+      "email": "b.henderson@smarterbdr.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "b.henderson@smarterbdr.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-henderson-smarterbdr-com",
+      "email": "bryce.henderson@smarterbdr.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.henderson@smarterbdr.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-smarterbdr-co",
+      "email": "bryce@smarterbdr.co",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce@smarterbdr.co",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-h-smarterbdr-co",
+      "email": "bryce.h@smarterbdr.co",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.h@smarterbdr.co",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-b-henderson-smarterbdr-co",
+      "email": "b.henderson@smarterbdr.co",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "b.henderson@smarterbdr.co",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-henderson-smarterbdr-co",
+      "email": "bryce.henderson@smarterbdr.co",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.henderson@smarterbdr.co",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-smartbdrsys-com",
+      "email": "bryce@smartbdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce@smartbdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-h-smartbdrsys-com",
+      "email": "bryce.h@smartbdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.h@smartbdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-b-henderson-smartbdrsys-com",
+      "email": "b.henderson@smartbdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "b.henderson@smartbdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-henderson-smartbdrsys-com",
+      "email": "bryce.henderson@smartbdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.henderson@smartbdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-smartbdr-co",
+      "email": "bryce@smartbdr.co",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce@smartbdr.co",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-h-smartbdr-co",
+      "email": "bryce.h@smartbdr.co",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.h@smartbdr.co",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-b-henderson-smartbdr-co",
+      "email": "b.henderson@smartbdr.co",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "b.henderson@smartbdr.co",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-henderson-smartbdr-co",
+      "email": "bryce.henderson@smartbdr.co",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.henderson@smartbdr.co",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-ottobdrsys-com",
+      "email": "bryce@ottobdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce@ottobdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-h-ottobdrsys-com",
+      "email": "bryce.h@ottobdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.h@ottobdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-b-henderson-ottobdrsys-com",
+      "email": "b.henderson@ottobdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "b.henderson@ottobdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-henderson-ottobdrsys-com",
+      "email": "bryce.henderson@ottobdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.henderson@ottobdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-ottobdr-com",
+      "email": "bryce@ottobdr.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce@ottobdr.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-h-ottobdr-com",
+      "email": "bryce.h@ottobdr.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.h@ottobdr.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-b-henderson-ottobdr-com",
+      "email": "b.henderson@ottobdr.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "b.henderson@ottobdr.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-henderson-ottobdr-com",
+      "email": "bryce.henderson@ottobdr.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.henderson@ottobdr.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-ottobdr-co",
+      "email": "bryce@ottobdr.co",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce@ottobdr.co",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-h-ottobdr-co",
+      "email": "bryce.h@ottobdr.co",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.h@ottobdr.co",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-b-henderson-ottobdr-co",
+      "email": "b.henderson@ottobdr.co",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "b.henderson@ottobdr.co",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-henderson-ottobdr-co",
+      "email": "bryce.henderson@ottobdr.co",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.henderson@ottobdr.co",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-aibdrsys-com",
+      "email": "bryce@aibdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce@aibdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-h-aibdrsys-com",
+      "email": "bryce.h@aibdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.h@aibdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-b-henderson-aibdrsys-com",
+      "email": "b.henderson@aibdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "b.henderson@aibdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-henderson-aibdrsys-com",
+      "email": "bryce.henderson@aibdrsys.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.migadu.com",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.henderson@aibdrsys.com",
+          "pass": "T0v!Pv90iHYfr20g"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-goottomatik-com",
+      "email": "bryce@goottomatik.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.secureserver.net",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce@goottomatik.com",
+          "pass": "DwlkDqO*Z%tk&9Zy"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-h-goottomatik-com",
+      "email": "bryce.h@goottomatik.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.secureserver.net",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.h@goottomatik.com",
+          "pass": "h1uZU@Y@y!ROeren"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-henderson-goottomatik-com",
+      "email": "bryce.henderson@goottomatik.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.secureserver.net",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.henderson@goottomatik.com",
+          "pass": "^5cwN7*vSQFNqod%"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-getottomatik-com",
+      "email": "bryce@getottomatik.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.secureserver.net",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce@getottomatik.com",
+          "pass": "ojnaJEj&$cxu#3!X"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-h-getottomatik-com",
+      "email": "bryce.h@getottomatik.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.secureserver.net",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.h@getottomatik.com",
+          "pass": "m&XNIeAJrW@Wp!5O"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-henderson-getottomatik-com",
+      "email": "bryce.henderson@getottomatik.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.secureserver.net",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.henderson@getottomatik.com",
+          "pass": "N7fmfWA%B6^4TM#$"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-tryottomatik-com",
+      "email": "bryce@tryottomatik.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.secureserver.net",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce@tryottomatik.com",
+          "pass": "L*EBrzWLJ0BN9MxJ"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-h-tryottomatik-com",
+      "email": "bryce.h@tryottomatik.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.secureserver.net",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.h@tryottomatik.com",
+          "pass": "149%TS&0#^6TFFjy"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
+    },
+    {
+      "name": "otto-bryce-henderson-tryottomatik-com",
+      "email": "bryce.henderson@tryottomatik.com",
+      "from_name": "Bryce Henderson",
+      "imap": {
+        "host": "imap.secureserver.net",
+        "port": 993,
+        "secure": true,
+        "auth": {
+          "user": "bryce.henderson@tryottomatik.com",
+          "pass": "j8T@1eH59vmKFpkO"
+        }
+      },
+      "webhook_enabled": true,
+      "n8n_workflow": "https://n8n.ottomatik.ai/webhook/otto-inbox-management"
     }
   ],
   "migadu_settings": {
     "imap_server": "imap.migadu.com",
     "imap_port": 993,
     "security": "SSL/TLS",
-    "provider": "Migadu"
-  }
+    "provider": "Migadu",
+    "domains": [
+      "smarterbdrsys.com",
+      "smarterbdr.com",
+      "smarterbdr.co",
+      "smartbdrsys.com",
+      "smartbdr.co",
+      "ottobdrsys.com",
+      "ottobdr.com",
+      "ottobdr.co",
+      "aibdrsys.com",
+      "goottomatik.com",
+      "getottomatik.com",
+      "tryottomatik.com"
+    ]
+  },
+  "notes": "ottomatik[ai] (otto) mailboxes configuration - Mix of Migadu and GoDaddy IMAP servers. Total of 45 email addresses across 13 domains. Migadu accounts: 36 (password: T0v!Pv90iHYfr20g), GoDaddy accounts: 9 (individual passwords)."
 }

@@ -1,0 +1,50 @@
+;;
+;; Domain:     ptcgrowyourpeople.com.
+;; Exported:   2025-09-06 01:09:39
+;;
+;; This file is intended for use for informational and archival
+;; purposes ONLY and MUST be edited before use on a production
+;; DNS server.  In particular, you must:
+;;   -- update the SOA record with the correct authoritative name server
+;;   -- update the SOA record with the contact e-mail address information
+;;   -- update the NS record(s) with the authoritative name servers for this domain.
+;;
+;; For further information, please consult the BIND documentation
+;; located on the following website:
+;;
+;; http://www.isc.org/
+;;
+;; And RFC 1035:
+;;
+;; http://www.ietf.org/rfc/rfc1035.txt
+;;
+;; Please note that we do NOT offer technical support for any use
+;; of this zone data, the BIND name server, or any other third-party
+;; DNS software.
+;;
+;; Use at your own risk.
+;; SOA Record
+ptcgrowyourpeople.com	3600	IN	SOA	duke.ns.cloudflare.com. dns.cloudflare.com. 2050878757 10000 2400 604800 3600
+
+;; NS Records
+ptcgrowyourpeople.com.	86400	IN	NS	duke.ns.cloudflare.com.
+ptcgrowyourpeople.com.	86400	IN	NS	vivienne.ns.cloudflare.com.
+
+;; A Records
+ptcgrowyourpeople.com.	1	IN	A	75.2.60.5 ; cf_tags=cf-proxied:false
+
+;; CNAME Records
+key1._domainkey.ptcgrowyourpeople.com.	300	IN	CNAME	key1.ptcgrowyourpeople.com._domainkey.migadu.com. ; cf_tags=cf-proxied:false
+key2._domainkey.ptcgrowyourpeople.com.	300	IN	CNAME	key2.ptcgrowyourpeople.com._domainkey.migadu.com. ; cf_tags=cf-proxied:false
+key3._domainkey.ptcgrowyourpeople.com.	300	IN	CNAME	key3.ptcgrowyourpeople.com._domainkey.migadu.com. ; cf_tags=cf-proxied:false
+www.ptcgrowyourpeople.com.	1	IN	CNAME	glittering-daifuku-9f7966.netlify.app. ; cf_tags=cf-proxied:false
+
+;; MX Records
+ptcgrowyourpeople.com.	300	IN	MX	20 aspmx2.migadu.com.
+ptcgrowyourpeople.com.	300	IN	MX	10 aspmx1.migadu.com.
+
+;; TXT Records
+_dmarc.ptcgrowyourpeople.com.	300	IN	TXT	"v=DMARC1; p=reject; rua=mailto:bryce@ottomatik.ai"
+ptcgrowyourpeople.com.	300	IN	TXT	"v=spf1 include:_spf.sparkpostmail.com -all"
+ptcgrowyourpeople.com.	300	IN	TXT	"hosted-email-verify=si6nuuj5"
+scph0925._domainkey.ptcgrowyourpeople.com.	300	IN	TXT	"v=DKIM1; k=rsa; h=sha256; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDBA/7QI4Llfu4wat1DjzH5FBLDDet2YijccJ0PxFVMNGsip8YDKfakuDYZ/oxr9VyNElm7kBNvF0gRb1G5cemD0T554g+9Q+sO9pxnlM6XDt+m3qTOK6DjbSrVGsGFrU/a5lKOvC22Qm2pPiNxFt72qOmCwtOIobVlIABZ3b64XQIDAQAB"
