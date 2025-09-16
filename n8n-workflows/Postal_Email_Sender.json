@@ -1,0 +1,63 @@
+{
+  "name": "* Postal Email Sender",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appEkwatMyt3TANve",
+          "mode": "list",
+          "cachedResultName": "CRM | ottomatik[ai]",
+          "cachedResultUrl": "https://airtable.com/appEkwatMyt3TANve"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblr8OEOvj3WMsKNV",
+          "mode": "list",
+          "cachedResultName": "Outbound Leads",
+          "cachedResultUrl": "https://airtable.com/appEkwatMyt3TANve/tblr8OEOvj3WMsKNV"
+        },
+        "filterByFormula": "AND({Lead Status} = 'Queued', OR(AND({Message Type} = 'email1', {Send Date} <= NOW()), AND({Message Type} = 'email2', {Send Date} <= NOW()), AND({Message Type} = 'email3', {Send Date} <= NOW()), AND({Message Type} = 'email4', {Send Date} <= NOW()), AND({Message Type} = 'email5', {Send Date} <= NOW())))",
+        "returnAll": false,
+        "limit": 1,
+        "options": {}
+      },
+      "id": "airtable-query",
+      "name": "Get Priority Lead",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        464,
+        304
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "UbAjFRvY4v4I8VWJ",
+          "name": "n8n | ottomatik[ai]"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveExecutionProgress": false,
+    "saveManualExecutions": true,
+    "timezone": "America/New_York"
+  }
+}
