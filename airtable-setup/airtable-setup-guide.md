@@ -7,8 +7,11 @@
 
 **IMPORTANT**: After import, you can clear the sample data and start fresh - it's only for field type detection.
 
+**⚠️ MANUAL FIX REQUIRED**: Change "Email Address" field type from "Single line text" to "Email" after import.
+
 **Field Configuration (Auto-detected from CSV):**
-- **Email Address**: Single line text (Primary field)
+- **Email Address**: Email (Primary field) - ⚠️ *Imports as Single line text, manually change to Email*
+- **Sender**: Single line text (always "Bryce Henderson")
 - **Daily Limit**: Number (integer)
 - **Sent Today**: Number (integer)
 - **Status**: Single select options: `Active`, `Paused`
@@ -62,15 +65,16 @@
 1. **Create new Airtable Base** or use existing "CRM | ottomatik[ai]"
 2. **Create "Email Accounts" table**
 3. **Import email-accounts-schema.csv** 
-4. **Create "WarmupHistory" table**
-5. **Import warmup-history-schema.csv**
-6. **Create "Domain Metrics" table**
-7. **Import domain-metrics-schema.csv**
-8. **Configure field types** as specified above
-9. **Copy Base ID** from Airtable URL: `airtable.com/BASE_ID/...`
-10. **Copy Table IDs** from table URLs
-11. **Update n8n workflow** with your actual Base/Table IDs
-12. **Connect Domain Tracking Nodes**: Manually connect "Prepare Summary Report" → "Process Domain Metrics" → "Update Domain Metrics Table" in n8n workflow
+4. **⚠️ CRITICAL**: Change "Email Address" field type from "Single line text" to "Email"
+5. **Create "WarmupHistory" table**
+6. **Import warmup-history-schema.csv**
+7. **Create "Domain Metrics" table**
+8. **Import domain-metrics-schema.csv**
+9. **Configure field types** as specified above
+10. **Copy Base ID** from Airtable URL: `airtable.com/BASE_ID/...`
+11. **Copy Table IDs** from table URLs
+12. **Update n8n workflow** with your actual Base/Table IDs
+13. **Connect Domain Tracking Nodes**: Manually connect "Prepare Summary Report" → "Process Domain Metrics" → "Update Domain Metrics Table" in n8n workflow
 
 ## 📋 Domains Included (36 Email Addresses)
 
