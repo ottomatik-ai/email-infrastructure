@@ -69,14 +69,14 @@
 ## 📋 Domains Included (36 Email Addresses)
 
 1. **aibdrsys.com** (4 addresses)
-2. **aipracticeautomation.com** (4 addresses)
-3. **myaibdr.com** (4 addresses)
-4. **ottomatik.ai** (4 addresses)
-5. **smarterbdr.com** (4 addresses)
-6. **smarterleadgen.com** (4 addresses)
-7. **smartermarketing.ca** (4 addresses)
-8. **talktoyourdoc.ca** (4 addresses)
-9. **vbdatabase.ca** (4 addresses)
+2. **ottobdr.co** (4 addresses)
+3. **ottobdr.com** (4 addresses)
+4. **ottobdrsys.com** (4 addresses)
+5. **smartbdr.co** (4 addresses)
+6. **smartbdrsys.com** (4 addresses)
+7. **smarterbdr.co** (4 addresses)
+8. **smarterbdr.com** (4 addresses)
+9. **smarterbdrsys.com** (4 addresses)
 
 ### Email Patterns for Each Domain:
 - `bryce@domain.com`
