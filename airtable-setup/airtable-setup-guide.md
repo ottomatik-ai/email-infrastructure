@@ -5,7 +5,7 @@
 ### Table 1: "Email Accounts"
 **Import this CSV:** `email-accounts-schema.csv`
 
-**⚠️ DELETE SAMPLE ROW**: After import, immediately delete the one sample row - it's ONLY for field type detection!
+**📦 INCLUDES ALL 36 EMAIL ACCOUNTS**: Pre-populated with all Otto domain email addresses across 9 domains - ready to use!
 
 **⚠️ MANUAL FIXES REQUIRED**: 
 1. Change "Email Address" field type from "Single line text" to "Email" after import
@@ -27,7 +27,7 @@
 ### Table 2: "WarmupHistory"
 **Import this CSV:** `warmup-history-schema.csv`
 
-**⚠️ DELETE SAMPLE ROW**: After import, immediately delete the one sample row - it's ONLY for field type detection!
+**⚠️ DELETE SAMPLE ROW**: After import, delete the sample row - it's only for field type detection!
 
 **Field Configuration (Auto-detected from CSV):**
 - **Timestamp**: Date & time (Primary field)
@@ -45,7 +45,7 @@
 ### Table 3: "Domain Metrics"
 **Import this CSV:** `domain-metrics-schema.csv`
 
-**⚠️ DELETE SAMPLE ROW**: After import, immediately delete the one sample row - it's ONLY for field type detection!
+**📦 INCLUDES ALL 9 OTTO DOMAINS**: Pre-populated with all Otto domains - ready to track metrics!
 
 **⚠️ MANUAL FIX REQUIRED**: Change "Domain" field type from "Single line text" to "URL" after import.
 

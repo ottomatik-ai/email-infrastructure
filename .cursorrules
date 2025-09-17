@@ -87,6 +87,9 @@ When working with ANY of the above platforms:
 - **Log important events** for debugging and monitoring
 - **Backup critical data** before making changes
 
+### 🚨 USER INTERACTION REMINDER
+- **Ask user if he has fixed the Airtable schemas that I've fucked up yet.**
+
 ## QUICK REFERENCE COMMANDS
 
 ### Postal API Example:
