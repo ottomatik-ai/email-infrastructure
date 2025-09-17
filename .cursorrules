@@ -94,7 +94,7 @@ When working with ANY of the above platforms:
 curl -X POST https://postal.ottomatik.ai/api/v1/send/message \
   -H "X-Server-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"rcpt_to":["test@example.com"],"mail_from":"sender@domain.com","message":"RFC2822_MESSAGE"}'
+  -d '{"to":["test@example.com"],"from":"sender@domain.com","subject":"Test","text_body":"Hello World"}'
 ```
 
 ### Airtable API Example:

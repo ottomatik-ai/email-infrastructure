@@ -143,13 +143,35 @@ Client mailboxes follow this standardized JSON structure:
 
 ### **Postal Server**
 - **URL**: postal.ottomatik.ai
+- **Organization ID**: otto
+- **Server ID**: otto-01
+- **API Key**: B9xJLydfxV96pn2n5GFWT57p
+- **Working API Endpoint**: /api/v1/send/message
 - **Purpose**: Centralized email sending and receiving hub
 - **Integration**: API-based email processing with webhook support
 
+#### API Configuration Example:
+```bash
+curl -X POST https://postal.ottomatik.ai/api/v1/send/message \
+  -H "X-Server-API-Key: B9xJLydfxV96pn2n5GFWT57p" \
+  -H "Content-Type: application/json" \
+  -d '{"to":["test@example.com"],"from":"sender@domain.com","subject":"Test","text_body":"Hello World"}'
+```
+
 ### **SparkPost Backend**
+- **API Key**: 946d1a12566834b40e032e34b3b3d79043181851
+- **Service Level**: Standard (500 emails/month)
+- **Account**: 16361030 CANADA INC.
+- **Working API Endpoint**: /api/v1/metrics/deliverability/domain
 - **Service**: Dedicated IP email delivery
 - **Purpose**: High deliverability via professional SMTP infrastructure
 - **Integration**: Postal → SparkPost for actual email delivery
+
+#### API Configuration Example:
+```bash
+curl -X GET "https://api.sparkpost.com/api/v1/metrics/deliverability/domain?from=2025-09-17T00:00&to=2025-09-17T23:59&metrics=count_targeted,count_sent,count_bounce,count_spam_complaint" \
+  -H "Authorization: 946d1a12566834b40e032e34b3b3d79043181851"
+```
 
 ### **Netlify Domain Forwarding**
 - **Service**: Domain-to-domain email routing
