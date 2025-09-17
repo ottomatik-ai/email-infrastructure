@@ -5,50 +5,56 @@
 ### Table 1: "Email Accounts"
 **Import this CSV:** `email-accounts-schema.csv`
 
-**Field Configuration:**
+**IMPORTANT**: After import, you can clear the sample data and start fresh - it's only for field type detection.
+
+**Field Configuration (Auto-detected from CSV):**
 - **Email Address**: Single line text (Primary field)
-- **Daily Limit**: Number
-- **Sent Today**: Number
+- **Daily Limit**: Number (integer)
+- **Sent Today**: Number (integer)
 - **Status**: Single select options: `Active`, `Paused`
 - **Warmup Start Date**: Date
 - **Health Status**: Single select options: `healthy`, `paused`, `stuck`
-- **Days Active**: Number
-- **Bounce Rate**: Number (0.00 format)
-- **Complaint Rate**: Number (0.00 format)
+- **Days Active**: Number (integer)
+- **Bounce Rate**: Number (decimal, represents percentage)
+- **Complaint Rate**: Number (decimal, represents percentage)
 - **Last Updated**: Date & time
 
 ### Table 2: "WarmupHistory"
 **Import this CSV:** `warmup-history-schema.csv`
 
-**Field Configuration:**
+**IMPORTANT**: After import, delete the 3 sample data rows - they're only for field type detection.
+
+**Field Configuration (Auto-detected from CSV):**
 - **Timestamp**: Date & time (Primary field)
-- **Email**: Single line text
+- **Email**: Single line text  
 - **Domain**: Single line text
-- **Previous Limit**: Number
-- **New Limit**: Number
-- **Increment**: Number
-- **Days Active**: Number
+- **Previous Limit**: Number (integer)
+- **New Limit**: Number (integer) 
+- **Increment**: Number (integer)
+- **Days Active**: Number (integer)
 - **Health Status**: Single line text
 - **Reason**: Long text
-- **Bounce Rate**: Number (0.00 format)
-- **Complaint Rate**: Number (0.00 format)
+- **Bounce Rate**: Number (decimal, represents percentage)
+- **Complaint Rate**: Number (decimal, represents percentage)
 
 ### Table 3: "Domain Metrics"
 **Import this CSV:** `domain-metrics-schema.csv`
 
-**Field Configuration:**
+**IMPORTANT**: After import, you can clear the 9 sample domain rows and let the workflow populate real data.
+
+**Field Configuration (Auto-detected from CSV):**
 - **Domain**: Single line text (Primary field)
-- **Email Count**: Number
-- **Total Daily Limit**: Number
-- **Total Sent Today**: Number
-- **Bounce Rate**: Number (0.00 format)
-- **Complaint Rate**: Number (0.00 format)
+- **Email Count**: Number (integer)
+- **Total Daily Limit**: Number (integer)
+- **Total Sent Today**: Number (integer)
+- **Bounce Rate**: Number (decimal, represents percentage)
+- **Complaint Rate**: Number (decimal, represents percentage)
 - **Health Status**: Single select options: `healthy`, `issues`, `paused`
 - **Last Updated**: Date & time
-- **Average Days Active**: Number
+- **Average Days Active**: Number (integer)
 - **SparkPost Verified**: Checkbox
 - **Postal Routes Active**: Checkbox
-- **Domain Age Days**: Number
+- **Domain Age Days**: Number (integer)
 - **Risk Level**: Single select options: `low`, `medium`, `high`
 
 ## 🔧 Setup Steps
