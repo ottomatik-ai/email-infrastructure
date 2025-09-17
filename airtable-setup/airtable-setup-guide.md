@@ -3,7 +3,7 @@
 ## 📊 Required Tables
 
 ### Table 1: "Email Accounts"
-**Import this CSV:** `email-accounts-complete.csv`
+**Import this CSV:** `email-accounts-schema.csv`
 
 **Field Configuration:**
 - **Email Address**: Single line text (Primary field)
@@ -33,16 +33,38 @@
 - **Bounce Rate**: Number (0.00 format)
 - **Complaint Rate**: Number (0.00 format)
 
+### Table 3: "Domain Metrics"
+**Import this CSV:** `domain-metrics-schema.csv`
+
+**Field Configuration:**
+- **Domain**: Single line text (Primary field)
+- **Email Count**: Number
+- **Total Daily Limit**: Number
+- **Total Sent Today**: Number
+- **Bounce Rate**: Number (0.00 format)
+- **Complaint Rate**: Number (0.00 format)
+- **Health Status**: Single select options: `healthy`, `issues`, `paused`
+- **Last Updated**: Date & time
+- **Average Days Active**: Number
+- **SparkPost Verified**: Checkbox
+- **Postal Routes Active**: Checkbox
+- **Domain Age Days**: Number
+- **Risk Level**: Single select options: `low`, `medium`, `high`
+
 ## 🔧 Setup Steps
 
 1. **Create new Airtable Base** or use existing "CRM | ottomatik[ai]"
 2. **Create "Email Accounts" table**
-3. **Import email-accounts-complete.csv** 
+3. **Import email-accounts-schema.csv** 
 4. **Create "WarmupHistory" table**
-5. **Configure field types** as specified above
-6. **Copy Base ID** from Airtable URL: `airtable.com/BASE_ID/...`
-7. **Copy Table IDs** from table URLs
-8. **Update n8n workflow** with your actual Base/Table IDs
+5. **Import warmup-history-schema.csv**
+6. **Create "Domain Metrics" table**
+7. **Import domain-metrics-schema.csv**
+8. **Configure field types** as specified above
+9. **Copy Base ID** from Airtable URL: `airtable.com/BASE_ID/...`
+10. **Copy Table IDs** from table URLs
+11. **Update n8n workflow** with your actual Base/Table IDs
+12. **Connect Domain Tracking Nodes**: Manually connect "Prepare Summary Report" → "Process Domain Metrics" → "Update Domain Metrics Table" in n8n workflow
 
 ## 📋 Domains Included (36 Email Addresses)
 
