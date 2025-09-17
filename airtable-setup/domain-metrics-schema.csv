@@ -1,10 +1,10 @@
 Domain,Email Count,Total Daily Limit,Total Sent Today,Bounce Rate,Complaint Rate,Health Status,Last Updated,Average Days Active,SparkPost Verified,Postal Routes Active,Domain Age Days,Risk Level
-aibdrsys.com,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
-ottobdr.co,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
-ottobdr.com,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
-ottobdrsys.com,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
-smartbdr.co,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
-smartbdrsys.com,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
-smarterbdr.co,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
-smarterbdr.com,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
-smarterbdrsys.com,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
+https://aibdrsys.com,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
+https://ottobdr.co,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
+https://ottobdr.com,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
+https://ottobdrsys.com,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
+https://smartbdr.co,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
+https://smartbdrsys.com,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
+https://smarterbdr.co,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
+https://smarterbdr.com,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low
+https://smarterbdrsys.com,4,4,0,0.5,0.01,healthy,2025-09-17T06:00:00.000Z,0,true,true,30,low

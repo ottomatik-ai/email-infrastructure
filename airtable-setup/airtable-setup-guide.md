@@ -45,8 +45,10 @@
 
 **IMPORTANT**: After import, you can clear the 9 sample domain rows and let the workflow populate real data.
 
+**⚠️ MANUAL FIX REQUIRED**: Change "Domain" field type from "Single line text" to "URL" after import.
+
 **Field Configuration (Auto-detected from CSV):**
-- **Domain**: Single line text (Primary field)
+- **Domain**: URL (Primary field) - ⚠️ *Imports as Single line text, manually change to URL*
 - **Email Count**: Number (integer)
 - **Total Daily Limit**: Number (integer)
 - **Total Sent Today**: Number (integer)
@@ -70,11 +72,12 @@
 6. **Import warmup-history-schema.csv**
 7. **Create "Domain Metrics" table**
 8. **Import domain-metrics-schema.csv**
-9. **Configure field types** as specified above
-10. **Copy Base ID** from Airtable URL: `airtable.com/BASE_ID/...`
-11. **Copy Table IDs** from table URLs
-12. **Update n8n workflow** with your actual Base/Table IDs
-13. **Connect Domain Tracking Nodes**: Manually connect "Prepare Summary Report" → "Process Domain Metrics" → "Update Domain Metrics Table" in n8n workflow
+9. **⚠️ CRITICAL**: Change "Domain" field type from "Single line text" to "URL"
+10. **Configure field types** as specified above
+11. **Copy Base ID** from Airtable URL: `airtable.com/BASE_ID/...`
+12. **Copy Table IDs** from table URLs
+13. **Update n8n workflow** with your actual Base/Table IDs
+14. **Connect Domain Tracking Nodes**: Manually connect "Prepare Summary Report" → "Process Domain Metrics" → "Update Domain Metrics Table" in n8n workflow
 
 ## 📋 Domains Included (36 Email Addresses)
 
