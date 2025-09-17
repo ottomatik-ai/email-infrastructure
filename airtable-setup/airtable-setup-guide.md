@@ -7,11 +7,13 @@
 
 **IMPORTANT**: After import, you can clear the sample data and start fresh - it's only for field type detection.
 
-**⚠️ MANUAL FIX REQUIRED**: Change "Email Address" field type from "Single line text" to "Email" after import.
+**⚠️ MANUAL FIXES REQUIRED**: 
+1. Change "Email Address" field type from "Single line text" to "Email" after import
+2. Change "Sender" field type from "Single select" to "Single line text" (Airtable auto-detects as select because all values are identical)
 
 **Field Configuration (Auto-detected from CSV):**
 - **Email Address**: Email (Primary field) - ⚠️ *Imports as Single line text, manually change to Email*
-- **Sender**: Single line text (always "Bryce Henderson")
+- **Sender**: Single line text - ⚠️ *May import as Single select, manually change to Single line text*
 - **Daily Limit**: Number (integer)
 - **Sent Today**: Number (integer)
 - **Status**: Single select options: `Active`, `Paused`
@@ -68,16 +70,17 @@
 2. **Create "Email Accounts" table**
 3. **Import email-accounts-schema.csv** 
 4. **⚠️ CRITICAL**: Change "Email Address" field type from "Single line text" to "Email"
-5. **Create "WarmupHistory" table**
-6. **Import warmup-history-schema.csv**
-7. **Create "Domain Metrics" table**
-8. **Import domain-metrics-schema.csv**
-9. **⚠️ CRITICAL**: Change "Domain" field type from "Single line text" to "URL"
-10. **Configure field types** as specified above
-11. **Copy Base ID** from Airtable URL: `airtable.com/BASE_ID/...`
-12. **Copy Table IDs** from table URLs
-13. **Update n8n workflow** with your actual Base/Table IDs
-14. **Connect Domain Tracking Nodes**: Manually connect "Prepare Summary Report" → "Process Domain Metrics" → "Update Domain Metrics Table" in n8n workflow
+5. **⚠️ CRITICAL**: Change "Sender" field type from "Single select" to "Single line text"
+6. **Create "WarmupHistory" table**
+7. **Import warmup-history-schema.csv**
+8. **Create "Domain Metrics" table**
+9. **Import domain-metrics-schema.csv**
+10. **⚠️ CRITICAL**: Change "Domain" field type from "Single line text" to "URL"
+11. **Configure field types** as specified above
+12. **Copy Base ID** from Airtable URL: `airtable.com/BASE_ID/...`
+13. **Copy Table IDs** from table URLs
+14. **Update n8n workflow** with your actual Base/Table IDs
+15. **Connect Domain Tracking Nodes**: Manually connect "Prepare Summary Report" → "Process Domain Metrics" → "Update Domain Metrics Table" in n8n workflow
 
 ## 📋 Domains Included (36 Email Addresses)
 
