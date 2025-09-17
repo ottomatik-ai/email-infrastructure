@@ -5,7 +5,7 @@
 ### Table 1: "Email Accounts"
 **Import this CSV:** `email-accounts-schema.csv`
 
-**IMPORTANT**: After import, you can clear the sample data and start fresh - it's only for field type detection.
+**⚠️ DELETE SAMPLE ROW**: After import, immediately delete the one sample row - it's ONLY for field type detection!
 
 **⚠️ MANUAL FIXES REQUIRED**: 
 1. Change "Email Address" field type from "Single line text" to "Email" after import
@@ -27,7 +27,7 @@
 ### Table 2: "WarmupHistory"
 **Import this CSV:** `warmup-history-schema.csv`
 
-**IMPORTANT**: After import, delete the 3 sample data rows - they're only for field type detection.
+**⚠️ DELETE SAMPLE ROW**: After import, immediately delete the one sample row - it's ONLY for field type detection!
 
 **Field Configuration (Auto-detected from CSV):**
 - **Timestamp**: Date & time (Primary field)
@@ -45,7 +45,7 @@
 ### Table 3: "Domain Metrics"
 **Import this CSV:** `domain-metrics-schema.csv`
 
-**IMPORTANT**: After import, you can clear the 9 sample domain rows and let the workflow populate real data.
+**⚠️ DELETE SAMPLE ROW**: After import, immediately delete the one sample row - it's ONLY for field type detection!
 
 **⚠️ MANUAL FIX REQUIRED**: Change "Domain" field type from "Single line text" to "URL" after import.
 
