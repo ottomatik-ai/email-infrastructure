@@ -1,0 +1,687 @@
+{
+  "name": "* Postal Email Sender",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appEkwatMyt3TANve",
+          "mode": "list",
+          "cachedResultName": "CRM | ottomatik[ai]",
+          "cachedResultUrl": "https://airtable.com/appEkwatMyt3TANve"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblr8OEOvj3WMsKNV",
+          "mode": "list",
+          "cachedResultName": "Outbound Leads",
+          "cachedResultUrl": "https://airtable.com/appEkwatMyt3TANve/tblr8OEOvj3WMsKNV"
+        },
+        "filterByFormula": "AND({Lead Status} = 'Queued', OR(AND({Message Type} = 'email1', {Send Date} <= NOW()), AND({Message Type} = 'email2', {Send Date} <= NOW()), AND({Message Type} = 'email3', {Send Date} <= NOW()), AND({Message Type} = 'email4', {Send Date} <= NOW()), AND({Message Type} = 'email5', {Send Date} <= NOW())))",
+        "returnAll": false,
+        "limit": 1,
+        "options": {}
+      },
+      "id": "airtable-query",
+      "name": "Get Priority Lead",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        464,
+        304
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "UbAjFRvY4v4I8VWJ",
+          "name": "n8n | ottomatik[ai]"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appEkwatMyt3TANve",
+          "mode": "list",
+          "cachedResultName": "CRM | ottomatik[ai]",
+          "cachedResultUrl": "https://airtable.com/appEkwatMyt3TANve"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblEmailAccounts12345",
+          "mode": "list",
+          "cachedResultName": "Email Accounts",
+          "cachedResultUrl": "https://airtable.com/appEkwatMyt3TANve/tblEmailAccounts12345"
+        },
+        "filterByFormula": "AND({Daily Limit} > {Emails Sent Today}, {Status} = 'Active')",
+        "options": {}
+      },
+      "id": "airtable-query-accounts",
+      "name": "Check Daily Limits",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        688,
+        304
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "UbAjFRvY4v4I8VWJ",
+          "name": "n8n | ottomatik[ai]"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "set-accounts-available",
+      "name": "Validate Account Availability",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        912,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.accountsAvailable }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-accounts-available",
+      "name": "Check Accounts Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Stop workflow execution - no accounts available\nreturn {\n  status: 'error',\n  message: 'Daily limits reached for all email accounts',\n  timestamp: new Date().toISOString()\n};"
+      },
+      "id": "stop-no-accounts",
+      "name": "Stop: Daily Limits Reached",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Determine Sending Account Based on Message Type\nconst leadData = $input.first().json;\nconst messageType = leadData.fields['Message Type'];\nconst campaignId = leadData.fields['Campaign'];\nconst originalSender = leadData.fields['Original Sending Account'];\n\nlet assignedEmail;\nlet priority = 'normal';\n\nif (messageType === 'email2' || messageType === 'email3' || messageType === 'email4' || messageType === 'email5') {\n  // CRITICAL: Must use original sending account for follow-up emails\n  assignedEmail = originalSender;\n  priority = 'normal';\n  \n  // If no original sender found, use a fallback\n  if (!assignedEmail) {\n    assignedEmail = 'noreply@smarterbdr.com'; // Fallback\n  }\n} else {\n  // For email1 (initial messages), use the account from the query\n  // CRITICAL BUG FIX: Use account data from second input, not lead email\n  assignedEmail = $input.itemMatching(1).json.fields['Email Address'];\n  priority = 'normal';\n}\n\nreturn {\n  json: {\n    ...leadData,\n    sending_account: assignedEmail,\n    campaign_id: campaignId,\n    message_type: messageType,\n    message_priority: priority\n  }\n};"
+      },
+      "id": "merge-account-data",
+      "name": "Merge Account Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://postal.ottomatik.ai/api/v1/send/message",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Server-API-Key",
+              "value": "={{ $credentials.postalApiKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "from",
+              "value": "={{ $json.sending_account }}"
+            },
+            {
+              "name": "to",
+              "value": [
+                "={{ $json.fields['Email Address'] }}"
+              ]
+            },
+            {
+              "name": "subject",
+              "value": "Test Email - {{ $json.fields['First Name'] }}"
+            },
+            {
+              "name": "plain_body",
+              "value": "Hello {{ $json.fields['First Name'] }},\n\nThis is a test email from the Postal system.\n\nBest regards,\nOttomatik Team"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "send-email",
+      "name": "Send Email via Postal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1568,
+        400
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "fekp0EaChWfk6zzC",
+          "name": "Ultravox"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appEkwatMyt3TANve",
+          "mode": "list",
+          "cachedResultName": "CRM | ottomatik[ai]",
+          "cachedResultUrl": "https://airtable.com/appEkwatMyt3TANve"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblr8OEOvj3WMsKNV",
+          "mode": "list",
+          "cachedResultName": "Outbound Leads",
+          "cachedResultUrl": "https://airtable.com/appEkwatMyt3TANve/tblr8OEOvj3WMsKNV"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "update-lead-status",
+      "name": "Update Lead Status",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1792,
+        400
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "UbAjFRvY4v4I8VWJ",
+          "name": "n8n | ottomatik[ai]"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appEkwatMyt3TANve",
+          "mode": "list",
+          "cachedResultName": "CRM | ottomatik[ai]",
+          "cachedResultUrl": "https://airtable.com/appEkwatMyt3TANve"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblEmailAccounts12345",
+          "mode": "list",
+          "cachedResultName": "Email Accounts",
+          "cachedResultUrl": "https://airtable.com/appEkwatMyt3TANve/tblEmailAccounts12345"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "update-account-counters",
+      "name": "Update Account Counters",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2000,
+        400
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "UbAjFRvY4v4I8VWJ",
+          "name": "n8n | ottomatik[ai]"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $input.first().json.fields['Message Type'] }}",
+              "rightValue": "email5",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "rightType": "string"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-sequence-complete",
+      "name": "Check Sequence Complete?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2224,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Campaign sequence completed\nreturn {\n  status: 'complete',\n  message: 'Email campaign sequence completed for this lead',\n  lead_id: $input.first().json.id,\n  email_address: $input.first().json.fields['Email Address']\n};"
+      },
+      "id": "sequence-complete",
+      "name": "Sequence Complete",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2448,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appEkwatMyt3TANve",
+          "mode": "list",
+          "cachedResultName": "CRM | ottomatik[ai]",
+          "cachedResultUrl": "https://airtable.com/appEkwatMyt3TANve"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblr8OEOvj3WMsKNV",
+          "mode": "list",
+          "cachedResultName": "Outbound Leads",
+          "cachedResultUrl": "https://airtable.com/appEkwatMyt3TANve/tblr8OEOvj3WMsKNV"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "queue-follow-up",
+      "name": "Queue Follow-up",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2448,
+        512
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "UbAjFRvY4v4I8VWJ",
+          "name": "n8n | ottomatik[ai]"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Success summary\nreturn {\n  status: 'success',\n  message: 'Email sent successfully and follow-up queued',\n  details: {\n    sent_to: $input.first().json.fields['Email Address'],\n    message_type: $input.first().json.fields['Message Type'],\n    next_followup: 'email' + (parseInt($input.first().json.fields['Message Type'].slice(-1)) + 1),\n    next_send_date: DateTime.now().plus({days: 3}).toFormat('yyyy-MM-dd')\n  }\n};"
+      },
+      "id": "success-summary",
+      "name": "Success Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2672,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "REPLACE_WITH_YOUR_ERROR_WEBHOOK_URL",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "error_source",
+              "value": "Postal Email Sender"
+            },
+            {
+              "name": "error_message",
+              "value": "={{ $json.error || 'Unknown error' }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ new Date().toISOString() }}"
+            },
+            {
+              "name": "workflow_id",
+              "value": "postal-email-sender"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "error-webhook",
+      "name": "Error Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1568,
+        608
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appEkwatMyt3TANve",
+          "mode": "list",
+          "cachedResultName": "CRM | ottomatik[ai]",
+          "cachedResultUrl": "https://airtable.com/appEkwatMyt3TANve"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblr8OEOvj3WMsKNV",
+          "mode": "list",
+          "cachedResultName": "Outbound Leads",
+          "cachedResultUrl": "https://airtable.com/appEkwatMyt3TANve/tblr8OEOvj3WMsKNV"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "update-error-status",
+      "name": "Update Error Status",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1792,
+        608
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "UbAjFRvY4v4I8VWJ",
+          "name": "n8n | ottomatik[ai]"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 */2 9-17 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        512
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Priority Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Priority Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Priority Lead": {
+      "main": [
+        [
+          {
+            "node": "Check Daily Limits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Daily Limits": {
+      "main": [
+        [
+          {
+            "node": "Validate Account Availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Account Availability": {
+      "main": [
+        [
+          {
+            "node": "Check Accounts Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Accounts Available?": {
+      "main": [
+        [
+          {
+            "node": "Stop: Daily Limits Reached",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Account Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Account Data": {
+      "main": [
+        [
+          {
+            "node": "Send Email via Postal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email via Postal": {
+      "main": [
+        [
+          {
+            "node": "Update Lead Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "error": [
+        [
+          {
+            "node": "Error Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Lead Status": {
+      "main": [
+        [
+          {
+            "node": "Update Account Counters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Account Counters": {
+      "main": [
+        [
+          {
+            "node": "Check Sequence Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Sequence Complete?": {
+      "main": [
+        [
+          {
+            "node": "Sequence Complete",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Queue Follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Queue Follow-up": {
+      "main": [
+        [
+          {
+            "node": "Success Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Webhook": {
+      "main": [
+        [
+          {
+            "node": "Update Error Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveExecutionProgress": false,
+    "saveManualExecutions": true,
+    "timezone": "America/New_York"
+  }
+}

@@ -1,0 +1,264 @@
+{
+  "name": "Postal Error Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "postal-error-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "error-webhook",
+      "name": "Error Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{ $json.error_source }}",
+              "rightValue": "main_workflow",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "route-error-source",
+      "name": "Route Error Source",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process Main Workflow Error\nconst errorData = $input.first().json;\n\nconst processedError = {\n  error_source: 'main_workflow',\n  campaign_id: errorData.campaign_id,\n  recipient_email: errorData.recipient_email,\n  message_type: errorData.message_type,\n  error_code: errorData.error_code,\n  error_message: errorData.error_message,\n  lead_id: errorData.lead_id,\n  timestamp: errorData.timestamp,\n  postal_response: errorData.postal_response,\n  error_type: categorizeError(errorData.error_code),\n  priority: getPriority(errorData.error_code),\n  pushover_message: formatPushoverMessage(errorData)\n};\n\nfunction categorizeError(code) {\n  switch(code) {\n    case 401: return 'authentication';\n    case 422: return 'validation';\n    case 429: return 'rate_limit';\n    case 500:\n    case 502:\n    case 503: return 'server_error';\n    default: return 'unknown';\n  }\n}\n\nfunction getPriority(code) {\n  switch(code) {\n    case 401:\n    case 422: return 1; // High priority\n    case 429:\n    case 500:\n    case 502:\n    case 503: return 0; // Normal priority\n    default: return 1; // High priority for unknown\n  }\n}\n\nfunction formatPushoverMessage(data) {\n  const timestamp = new Date(data.timestamp).toLocaleString();\n  return `🚨 POSTAL EMAIL ERROR\n\nCampaign: ${data.campaign_id}\nRecipient: ${data.recipient_email}\nMessage Type: ${data.message_type}\nError Code: ${data.error_code}\nError: ${data.error_message}\nSource: ${data.error_source === 'main_workflow' ? 'Main Workflow' : 'Webhook Workflow'}\n\nTime: ${timestamp}`;\n}\n\nreturn {\n  json: processedError\n};"
+      },
+      "id": "process-main-error",
+      "name": "Process Main Workflow Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process Webhook Workflow Error\nconst errorData = $input.first().json;\n\nconst processedError = {\n  error_source: 'webhook_workflow',\n  campaign_id: errorData.campaign_id,\n  recipient_email: errorData.recipient_email,\n  message_type: errorData.message_type,\n  error_code: errorData.error_code,\n  error_message: errorData.error_message,\n  lead_id: errorData.lead_id,\n  timestamp: errorData.timestamp,\n  webhook_data: errorData.webhook_data,\n  error_type: 'webhook_processing',\n  priority: 1, // High priority for webhook errors\n  pushover_message: formatPushoverMessage(errorData)\n};\n\nfunction formatPushoverMessage(data) {\n  const timestamp = new Date(data.timestamp).toLocaleString();\n  return `🚨 POSTAL EMAIL ERROR\n\nCampaign: ${data.campaign_id}\nRecipient: ${data.recipient_email}\nMessage Type: ${data.message_type}\nError Code: ${data.error_code}\nError: ${data.error_message}\nSource: ${data.error_source === 'main_workflow' ? 'Main Workflow' : 'Webhook Workflow'}\n\nTime: ${timestamp}`;\n}\n\nreturn {\n  json: processedError\n};"
+      },
+      "id": "process-webhook-error",
+      "name": "Process Webhook Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "message",
+        "user": "={{ $credentials.pushoverUser }}",
+        "token": "={{ $credentials.pushoverToken }}",
+        "message": "={{ $json.pushover_message }}",
+        "title": "🚨 Postal Email Error",
+        "priority": "={{ $json.priority }}",
+        "sound": "pushover"
+      },
+      "id": "send-pushover",
+      "name": "Send Pushover Notification",
+      "type": "n8n-nodes-base.pushover",
+      "typeVersion": 1,
+      "position": [
+        900,
+        300
+      ],
+      "credentials": {
+        "pushoverApi": {
+          "id": "pushover-credentials",
+          "name": "Pushover API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": "appXXXXXXXXXXXXXX",
+        "table": "Outbound Leads",
+        "id": "={{ $json.lead_id }}",
+        "fieldsToSend": "defined",
+        "fields": {
+          "Lead Status": "Failed",
+          "Error Message": "={{ $json.error_message }}",
+          "Error Code": "={{ $json.error_code }}",
+          "Error Type": "={{ $json.error_type }}",
+          "Failed At": "={{ $json.timestamp }}",
+          "Error Source": "={{ $json.error_source }}",
+          "Error Notification Sent": true
+        }
+      },
+      "id": "update-airtable-error",
+      "name": "Update Airtable Error Status",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 3,
+      "position": [
+        1120,
+        300
+      ],
+      "credentials": {
+        "airtableApi": {
+          "id": "airtable-credentials",
+          "name": "n8n | ottomatik[ai]"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log Error Details\nconst errorData = $input.first().json;\n\nconst logEntry = {\n  timestamp: errorData.timestamp,\n  error_source: errorData.error_source,\n  campaign_id: errorData.campaign_id,\n  recipient_email: errorData.recipient_email,\n  message_type: errorData.message_type,\n  error_code: errorData.error_code,\n  error_message: errorData.error_message,\n  error_type: errorData.error_type,\n  priority: errorData.priority,\n  lead_id: errorData.lead_id\n};\n\n// Log to console (or external logging service)\nconsole.log('POSTAL ERROR:', JSON.stringify(logEntry, null, 2));\n\nreturn {\n  json: {\n    ...errorData,\n    logged: true\n  }\n};"
+      },
+      "id": "log-error-details",
+      "name": "Log Error Details",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({\n  \"status\": \"success\",\n  \"message\": \"Error processed and notification sent\",\n  \"error_id\": $json.lead_id,\n  \"notification_sent\": true,\n  \"timestamp\": $json.timestamp\n}) }}",
+        "options": {}
+      },
+      "id": "error-response",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Error Webhook": {
+      "main": [
+        [
+          {
+            "node": "Route Error Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Error Source": {
+      "main": [
+        [
+          {
+            "node": "Process Main Workflow Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Process Webhook Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Main Workflow Error": {
+      "main": [
+        [
+          {
+            "node": "Send Pushover Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Webhook Error": {
+      "main": [
+        [
+          {
+            "node": "Send Pushover Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Pushover Notification": {
+      "main": [
+        [
+          {
+            "node": "Update Airtable Error Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Airtable Error Status": {
+      "main": [
+        [
+          {
+            "node": "Log Error Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Error Details": {
+      "main": [
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Response": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-15T14:30:45.123Z",
+  "versionId": "1"
+}

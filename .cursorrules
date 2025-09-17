@@ -1,0 +1,116 @@
+# 📧 EMAIL INFRASTRUCTURE - REFERENCE DOCUMENTATION
+
+## CRITICAL SOFTWARE DOCUMENTATION REFERENCES
+
+### 📮 POSTAL MAIL SERVER
+- **Official Documentation**: https://postalserver.io/
+- **GitHub Repository**: https://github.com/atech/postal
+- **Installation Guide**: https://github.com/atech/postal/wiki/Installation
+- **API Reference**: https://github.com/atech/postal/wiki/Using-the-API
+- **Configuration**: https://github.com/atech/postal/wiki/Configuration
+- **Docker Setup**: https://github.com/atech/postal/wiki/Running-Postal-with-Docker
+
+### 🌐 HOSTINGER API
+- **API Documentation**: https://developers.hostinger.com/
+- **VPS Management**: https://developers.hostinger.com/docs/vps
+- **Domain Management**: https://developers.hostinger.com/docs/domains  
+- **DNS Management**: https://developers.hostinger.com/docs/dns
+- **Authentication**: https://developers.hostinger.com/docs/authentication
+
+### ⚡ SPARKPOST
+- **Developer Documentation**: https://developers.sparkpost.com/
+- **API Reference**: https://developers.sparkpost.com/api/
+- **SMTP API**: https://developers.sparkpost.com/api/smtp-api/
+- **Webhooks**: https://developers.sparkpost.com/api/webhooks/
+- **Transmissions**: https://developers.sparkpost.com/api/transmissions/
+- **Suppression List**: https://developers.sparkpost.com/api/suppression-list/
+
+### 📊 AIRTABLE
+- **Web API Documentation**: https://airtable.com/developers/web/api/
+- **Introduction**: https://airtable.com/developers/web/api/introduction
+- **Authentication**: https://airtable.com/developers/web/api/authentication
+- **List Records**: https://airtable.com/developers/web/api/list-records
+- **Create Records**: https://airtable.com/developers/web/api/create-records
+- **Update Records**: https://airtable.com/developers/web/api/update-record
+- **Delete Records**: https://airtable.com/developers/web/api/delete-record
+
+### ☁️ CLOUDFLARE
+- **Developer Documentation**: https://developers.cloudflare.com/
+- **API Reference**: https://developers.cloudflare.com/api/
+- **DNS Management**: https://developers.cloudflare.com/dns/
+- **Zone Settings**: https://developers.cloudflare.com/api/operations/zones-get
+- **Email Routing**: https://developers.cloudflare.com/email-routing/
+- **Workers**: https://developers.cloudflare.com/workers/
+
+### 🔧 N8N WORKFLOW AUTOMATION
+- **Official Documentation**: https://docs.n8n.io/
+- **Node Reference**: https://docs.n8n.io/integrations/builtin/
+- **Workflow Examples**: https://n8n.io/workflows/
+- **API Reference**: https://docs.n8n.io/api/
+- **Airtable Node**: https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.airtable/
+- **HTTP Request Node**: https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/
+- **Code Node**: https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.code/
+
+### 🐘 SUPABASE
+- **Documentation**: https://supabase.com/docs
+- **API Reference**: https://supabase.com/docs/reference/javascript/
+- **Database**: https://supabase.com/docs/guides/database
+- **Auth**: https://supabase.com/docs/guides/auth
+- **Storage**: https://supabase.com/docs/guides/storage
+- **Edge Functions**: https://supabase.com/docs/guides/functions
+
+## MANDATORY DEVELOPMENT RULES
+
+### 🚨 CRITICAL: ALWAYS REFERENCE OFFICIAL DOCUMENTATION
+When working with ANY of the above platforms:
+1. **FIRST** - Check the official documentation links above
+2. **VERIFY** - Ensure you're using current API versions and endpoints
+3. **VALIDATE** - Cross-reference with official examples
+4. **TEST** - Verify all integrations work as documented
+
+### 📝 WORKFLOW MODIFICATION PROCESS
+1. **Read current workflow** from n8n instance
+2. **Check node compatibility** using official n8n documentation
+3. **Preserve user configurations** unless explicitly instructed to change
+4. **Test locally** before updating production workflows
+5. **Document changes** in workflow comments and commit messages
+
+### 🔐 SECURITY & CREDENTIALS
+- **Never hardcode** API keys, tokens, or credentials
+- **Use n8n credential system** for secure storage
+- **Reference environment variables** for configuration
+- **Follow least privilege principle** for API permissions
+
+### 📊 DATA HANDLING
+- **Validate data structure** against official schemas
+- **Handle errors gracefully** with proper error nodes
+- **Log important events** for debugging and monitoring
+- **Backup critical data** before making changes
+
+## QUICK REFERENCE COMMANDS
+
+### Postal API Example:
+```bash
+curl -X POST https://postal.ottomatik.ai/api/v1/send/message \
+  -H "X-Server-API-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"rcpt_to":["test@example.com"],"mail_from":"sender@domain.com","message":"RFC2822_MESSAGE"}'
+```
+
+### Airtable API Example:
+```bash
+curl -X GET "https://api.airtable.com/v0/BASE_ID/TABLE_NAME" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Hostinger API Example:
+```bash
+curl -X GET "https://api.hostinger.com/v1/domains" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+---
+
+**🔄 LAST UPDATED**: September 2025
+**📍 PROJECT**: email-infrastructure  
+**🎯 PURPOSE**: Centralized documentation reference for all email infrastructure components

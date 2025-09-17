@@ -1,0 +1,1669 @@
+{
+  "name": "3. Monitoring and Warmup",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 6 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "eb20ea36-9dba-4d53-a31b-01fcac727e70",
+      "name": "Weekday Morning Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        1024,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Email Warmup System - Postal + Airtable\n\n### Key Features:\n- **36 Email Addresses**: Across 9 domains with 4 variations each\n- **Ultra-Conservative**: 6-week warmup (Risk: 3/10)\n- **Postal Integration**: Route monitoring & delivery tracking\n- **Airtable Storage**: Email accounts, warmup history, domain metrics\n- **SparkPost Backend**: Domain reputation monitoring\n- **Daily Quota Reset**: Automatic midnight counter reset\n\n### Warmup Schedule:\n- **Weeks 1-2**: 1-2 emails/day (+1 max) = 36-72 total/day\n- **Weeks 3-4**: 8-20 emails/day (+3 max) = 288-720 total/day\n- **Weeks 5-6**: 20-40 emails/day (+4 max) = 720-1,440 total/day\n\n### Safety Thresholds:\n- Individual address bounce: 10%\n- Individual address complaint: 0.3%\n- Domain average bounce: 10%\n- Domain average complaint: 0.1%\n- Pause if no progress for 3+ days",
+        "height": 620,
+        "width": 380
+      },
+      "id": "4b6a2213-5132-4ed3-9954-c39a786e4c18",
+      "name": "System Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "mode": "list"
+        },
+        "table": {
+          "__rl": true,
+          "value": "Email Accounts",
+          "mode": "list"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "id": "48248570-041d-44b0-97d2-424698d96e33",
+      "name": "Get All Email Accounts",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1248,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Daily Reset Check\nconst now = new Date();\nconst hours = now.getHours();\nconst minutes = now.getMinutes();\n\n// Execute reset between 00:00 and 00:30 to avoid multiple executions\nif (hours === 0 && minutes <= 30) {\n  \n  // Get all active email accounts from Airtable\n  const activeAccounts = $('Get All Email Accounts').all()\n    .filter(item => item.json['Status'] === 'Active')\n    .map(item => ({\n      id: item.json.id,\n      email: item.json['Email Address'],\n      currentSent: item.json['Sent Today'] || 0\n    }));\n  \n  return [{\n    json: {\n      shouldReset: true,\n      accountCount: activeAccounts.length,\n      resetDate: now.toISOString().split('T')[0],\n      accounts: activeAccounts\n    }\n  }];\n}\n\nreturn [{ json: { shouldReset: false, message: \"Outside reset window\" } }];"
+      },
+      "id": "0e332ba1-4f01-4ccf-a8bc-4370d4fbd711",
+      "name": "Daily Reset Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://postal.ottomatik.ai/api/v1/organizations/YOUR_ORG_ID/servers/YOUR_SERVER_ID/routes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "0b97d6be-98ef-43fe-b4bb-b2c964fedea9",
+      "name": "Get Postal Routes Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1904,
+        1424
+      ],
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate email addresses and SparkPost data\nconst allAddresses = $('Get All Email Accounts').all();\nconst sparkpostData = $node[\"Get SparkPost IP Status\"].json;\nconst postalRoutes = $node[\"Get Postal Routes Status\"].json;\n\n// Group by domain instead of campaign\nconst domainGroups = {};\nfor (const item of allAddresses) {\n  const email = item.json['Email Address'];\n  if (!email) continue;\n  \n  const domain = email.split('@')[1];\n  if (!domainGroups[domain]) {\n    domainGroups[domain] = [];\n  }\n  domainGroups[domain].push(item.json);\n}\n\n// Extract SparkPost IP limits\nlet currentStage = 1;\nlet stageLimit = 50; // Ultra-conservative start\n\nconst stageLimits = {\n  1: 200, 2: 500, 3: 1000, 4: 2000, 5: 5000,\n  6: 10000, 7: 20000, 8: 40000, 9: 50000, 10: 75000,\n  11: 100000, 12: 150000, 13: 200000, 14: 250000, 15: 325000,\n  16: 400000, 17: 500000, 18: 600000, 19: 750000, 20: 1000000\n};\n\nconst ips = sparkpostData.results || [];\nfor (const ip of ips) {\n  if (ip.ip_pool === 'YOUR_IP_POOL_NAME' && ip.auto_warmup_enabled && ip.auto_warmup_stage) {\n    currentStage = ip.auto_warmup_stage;\n    stageLimit = stageLimits[currentStage] || stageLimit;\n    break;\n  }\n}\n\n// Apply 15% safety buffer\nconst effectiveLimit = Math.floor(stageLimit * 0.85);\n\nreturn [{\n  json: {\n    sparkpost: {\n      currentStage,\n      stageLimit,\n      effectiveLimit,\n      ipPool: 'YOUR_IP_POOL_NAME'\n    },\n    domains: domainGroups,\n    postalRoutes: postalRoutes || [],\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "cda469d2-583f-4506-8959-2572d00713b6",
+      "name": "Aggregate Domain & SparkPost Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2128,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract unique sending domains from email addresses\nconst addressesData = $('Get All Email Accounts').all();\nconst domains = new Set();\n\nfor (const item of addressesData) {\n  const email = item.json['Email Address'];\n  if (email && email.includes('@')) {\n    const domain = email.split('@')[1];\n    domains.add(domain);\n  }\n}\n\nconst domainList = Array.from(domains);\n\n// Calculate date range for metrics (last 24 hours)\nconst now = new Date();\nconst yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);\n\nconst fromDate = yesterday.toISOString().split('.')[0];\nconst toDate = now.toISOString().split('.')[0];\n\nreturn [{\n  json: {\n    domains: domainList,\n    domainString: domainList.join(','),\n    fromDate,\n    toDate,\n    metricsToFetch: 'count_targeted,count_injected,count_bounce,count_hard_bounce,count_soft_bounce,count_spam_complaint,count_unsubscribe,count_delivered'\n  }\n}];"
+      },
+      "id": "cd0fed78-ae4f-4b6c-9430-05225acd8b2c",
+      "name": "Prepare Domain Metrics Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2352,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.eu.sparkpost.com/api/v1/metrics/deliverability/sending-domain?from={{ $json.fromDate }}&to={{ $json.toDate }}&metrics={{ $json.metricsToFetch }}&sending_domains={{ $json.domainString }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "414c9e26-6191-47b8-8b5d-fd640b18ee5d",
+      "name": "Get SparkPost Domain Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2560,
+        1424
+      ],
+      "executeOnce": true,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Enhanced email address processing with domain metrics\nconst addressesData = $('Get All Email Accounts').all();\nconst aggregatedData = $node[\"Aggregate Domain & SparkPost Data\"].json;\nconst sparkpostMetrics = $node[\"Get SparkPost Domain Metrics\"].json.results || [];\nconst today = new Date();\nconst results = [];\nconst healthIssues = [];\nconst campaignVolumes = {};\nconst domainMetrics = {};\n\n// Process SparkPost domain metrics\nfor (const metric of sparkpostMetrics) {\n  const domain = metric.sending_domain;\n  const targeted = metric.count_targeted || 0;\n  const bounced = metric.count_bounce || 0;\n  const complaints = metric.count_spam_complaint || 0;\n  \n  domainMetrics[domain] = {\n    bounceRate: targeted > 0 ? (bounced / targeted * 100) : 0,\n    complaintRate: targeted > 0 ? (complaints / targeted * 100) : 0,\n    targeted,\n    bounced,\n    complaints,\n    unsubscribed: metric.count_unsubscribe || 0\n  };\n}\n\n// Initialize campaign volume tracking\nfor (const campaignId in aggregatedData.campaigns) {\n  campaignVolumes[campaignId] = {\n    current: 0,\n    projected: 0,\n    mailboxCount: 0\n  };\n}\n\n// Conservative warmup schedule (6 weeks)\nfunction getMaxIncrement(weeksActive) {\n  if (weeksActive <= 2) return 2;      // Weeks 1-2: Max +2/day\n  if (weeksActive <= 4) return 3;      // Weeks 3-4: Max +3/day\n  if (weeksActive <= 6) return 4;      // Weeks 5-6: Max +4/day\n  return 5;                             // After 6 weeks: Max +5/day\n}\n\nfunction getTargetLimit(daysActive) {\n  const weeksActive = Math.floor(daysActive / 7);\n  \n  if (weeksActive < 1) return 2;       // Week 1: 1-2 emails\n  if (weeksActive < 2) return 4;       // Week 2: 3-4 emails\n  if (weeksActive < 3) return 10;      // Week 3: 8-10 emails\n  if (weeksActive < 4) return 18;      // Week 4: 15-18 emails\n  if (weeksActive < 5) return 28;      // Week 5: 25-28 emails\n  if (weeksActive < 6) return 38;      // Week 6: 35-38 emails\n  return 40;                            // Target: 40 emails\n}\n\n// Process each mailbox\nfor (const item of mailboxesData) {\n  const mailbox = item.json;\n  const email = mailbox.email;\n  const domain = email.split('@')[1];\n  const campaignId = mailbox.campaign_id;\n  let currentLimit = parseInt(mailbox.current_limit) || 0;\n  let warmupStartDate = mailbox.warmup_start_date;\n  let lastUpdated = mailbox.last_updated;\n  let healthStatus = mailbox.health_status || 'healthy';\n  let daysActive = 0;\n  let isNew = false;\n  let isPaused = false;\n  let issues = [];\n  \n  // Get domain metrics from SparkPost\n  const domainData = domainMetrics[domain] || { bounceRate: 0, complaintRate: 0 };\n  const bounceRate = domainData.bounceRate;\n  const complaintRate = domainData.complaintRate;\n  \n  // Validate campaign assignment\n  if (!campaignId || !aggregatedData.campaigns[campaignId]) {\n    issues.push('No valid campaign assigned');\n    healthStatus = 'error';\n  }\n  \n  // Initialize new mailboxes\n  if (!warmupStartDate || currentLimit === 0) {\n    warmupStartDate = today.toISOString().split('T')[0];\n    currentLimit = 0;\n    daysActive = 0;\n    isNew = true;\n  } else {\n    const startDate = new Date(warmupStartDate);\n    daysActive = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));\n  }\n  \n  // Health checks with SparkPost data - ADJUSTED FOR WARMUP\n  if (bounceRate > 10) {  // Changed from 5% to 10%\n    isPaused = true;\n    issues.push(`High bounce rate: ${bounceRate.toFixed(1)}% (Domain: ${domain})`);\n    healthStatus = 'paused';\n  }\n  \n  if (complaintRate > 0.3) {  // Changed from 0.1% to 0.3%\n    isPaused = true;\n    issues.push(`High complaint rate: ${complaintRate.toFixed(2)}% (Domain: ${domain})`);\n    healthStatus = 'paused';\n  }\n  \n  // Check for stuck mailboxes\n  if (lastUpdated) {\n    const lastUpdateDate = new Date(lastUpdated);\n    const daysSinceUpdate = Math.floor((today - lastUpdateDate) / (1000 * 60 * 60 * 24));\n    if (daysSinceUpdate > 3 && currentLimit < 40) {\n      issues.push(`No progress for ${daysSinceUpdate} days`);\n      healthStatus = 'stuck';\n    }\n  }\n  \n  // Track current volume per campaign\n  if (campaignId && aggregatedData.campaigns[campaignId]) {\n    campaignVolumes[campaignId].current += currentLimit;\n    campaignVolumes[campaignId].mailboxCount++;\n  }\n  \n  results.push({\n    email,\n    domain,\n    campaignId,\n    warmupStartDate,\n    currentLimit,\n    daysActive,\n    weeksActive: Math.floor(daysActive / 7),\n    bounceRate,\n    complaintRate,\n    domainMetrics: domainData,\n    isNew,\n    isPaused,\n    healthStatus,\n    issues,\n    targetLimit: getTargetLimit(daysActive),\n    maxIncrement: getMaxIncrement(Math.floor(daysActive / 7))\n  });\n  \n  if (issues.length > 0) {\n    healthIssues.push({ email, domain, issues });\n  }\n}\n\n// Calculate available room per campaign\nconst totalCurrentVolume = results.reduce((sum, mb) => sum + mb.currentLimit, 0);\nconst availableRoom = Math.max(0, aggregatedData.sparkpost.effectiveLimit - totalCurrentVolume);\n\n// Sort mailboxes by priority within each campaign\nconst sortedByCampaign = {};\nfor (const campaignId in aggregatedData.campaigns) {\n  sortedByCampaign[campaignId] = results\n    .filter(mb => mb.campaignId === campaignId)\n    .sort((a, b) => {\n      if (a.isPaused && !b.isPaused) return 1;\n      if (!a.isPaused && b.isPaused) return -1;\n      if (a.healthStatus === 'stuck' && b.healthStatus !== 'stuck') return -1;\n      if (a.healthStatus !== 'stuck' && b.healthStatus === 'stuck') return 1;\n      if (a.isNew && !b.isNew) return -1;\n      if (!a.isNew && b.isNew) return 1;\n      return a.currentLimit - b.currentLimit;\n    });\n}\n\n// Distribute available room across campaigns\nlet remainingRoom = availableRoom;\nconst processedMailboxes = [];\n\nfor (const campaignId in sortedByCampaign) {\n  const campaignMailboxes = sortedByCampaign[campaignId];\n  const campaignShare = Math.floor(availableRoom / Object.keys(aggregatedData.campaigns).length);\n  let campaignRoom = Math.min(campaignShare, remainingRoom);\n  \n  for (const mailbox of campaignMailboxes) {\n    let increment = 0;\n    let newLimit = mailbox.currentLimit;\n    let reason = '';\n    \n    if (mailbox.isPaused) {\n      increment = 0;\n      reason = `PAUSED: ${mailbox.issues.join(', ')}`;\n    } else if (mailbox.currentLimit >= 40) {\n      increment = 0;\n      reason = 'At target limit (40)';\n    } else if (campaignRoom <= 0) {\n      increment = 0;\n      reason = 'No room in campaign allocation';\n    } else if (remainingRoom <= 0) {\n      increment = 0;\n      reason = `SparkPost stage ${aggregatedData.sparkpost.currentStage} limit reached`;\n    } else {\n      // Calculate conservative increment\n      const targetLimit = mailbox.targetLimit;\n      const desiredIncrement = Math.min(\n        mailbox.maxIncrement,\n        targetLimit - mailbox.currentLimit,\n        40 - mailbox.currentLimit\n      );\n      \n      // New mailboxes start extra conservative\n      const actualIncrement = mailbox.isNew ? \n        Math.min(1, desiredIncrement) : \n        Math.min(desiredIncrement, campaignRoom, remainingRoom);\n      \n      if (actualIncrement > 0) {\n        increment = actualIncrement;\n        newLimit = mailbox.currentLimit + increment;\n        campaignRoom -= increment;\n        remainingRoom -= increment;\n        reason = `Week ${mailbox.weeksActive + 1} progression (+${increment})`;\n      } else {\n        reason = 'Capacity constraints';\n      }\n    }\n    \n    campaignVolumes[campaignId].projected += newLimit;\n    \n    processedMailboxes.push({\n      ...mailbox,\n      increment,\n      newLimit,\n      reason,\n      shouldUpdate: increment > 0\n    });\n  }\n}\n\n// Calculate summary\nconst summary = {\n  totalMailboxes: processedMailboxes.length,\n  totalCurrentVolume,\n  projectedNewVolume: processedMailboxes.reduce((sum, mb) => sum + mb.newLimit, 0),\n  sparkpostStage: aggregatedData.sparkpost.currentStage,\n  stageLimit: aggregatedData.sparkpost.stageLimit,\n  effectiveLimit: aggregatedData.sparkpost.effectiveLimit,\n  mailboxesToUpdate: processedMailboxes.filter(mb => mb.shouldUpdate).length,\n  healthyMailboxes: processedMailboxes.filter(mb => mb.healthStatus === 'healthy').length,\n  pausedMailboxes: processedMailboxes.filter(mb => mb.isPaused).length,\n  stuckMailboxes: processedMailboxes.filter(mb => mb.healthStatus === 'stuck').length,\n  campaignVolumes,\n  healthIssues,\n  domainMetrics,\n  ipPool: aggregatedData.sparkpost.ipPool\n};\n\nreturn processedMailboxes.map(mb => ({ json: { ...mb, summary, aggregatedData } }));"
+      },
+      "id": "3ce5ca70-9017-496d-950f-4701793a40f0",
+      "name": "Process Email Addresses with Domain Metrics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2784,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "should-update",
+              "leftValue": "={{ $json.shouldUpdate }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e8498094-a5ba-485a-8d26-5f8e0b5120c3",
+      "name": "Filter Mailboxes to Update",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3008,
+        1008
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "id": "f6b72663-1dcd-4899-b966-b013fb76ab8e",
+      "name": "Batch Process Updates",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3232,
+        1008
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.instantly.ai/api/v2/accounts/{{ $json.email }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "71422db4-7e61-4a21-b44a-fcb7ef2aa6ad",
+      "name": "Get Account Current Info",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3440,
+        832
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "amount": 0.5
+      },
+      "id": "d0ce0c66-71f6-4712-ab6b-9b2d8f5556b4",
+      "name": "Rate Limit Delay",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3664,
+        832
+      ],
+      "webhookId": "5c15423a-c2cf-42bf-a71e-ebfda92b125a"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.instantly.ai/api/v2/accounts/{{ $('Filter Mailboxes to Update').item.json.email }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "daily_limit",
+              "value": "={{ $('Process Mailboxes with Domain Metrics').item.json.newLimit }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "81ada9a6-5a17-40ae-8b1a-550d1194de3f",
+      "name": "Update Account Daily Limit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3888,
+        832
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1m5QDoX3IQD232d2n5o9JXrc8X0B2lT_csdel03Xt3Qo",
+          "mode": "list",
+          "cachedResultName": "Domain Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1m5QDoX3IQD232d2n5o9JXrc8X0B2lT_csdel03Xt3Qo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Mailboxes",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $json.email }}",
+            "campaign_id": "={{ $('Process Mailboxes with Domain Metrics').item.json.campaignId }}",
+            "warmup_start_date": "={{ $('Process Mailboxes with Domain Metrics').item.json.warmupStartDate }}",
+            "current_limit": "={{ $('Process Mailboxes with Domain Metrics').item.json.newLimit }}",
+            "days_active": "={{ $('Process Mailboxes with Domain Metrics').item.json.daysActive }}",
+            "health_status": "={{ $('Process Mailboxes with Domain Metrics').item.json.healthStatus }}",
+            "update_reason": "={{ $('Process Mailboxes with Domain Metrics').item.json.reason }}",
+            "bounce_rate": "={{ $('Process Mailboxes with Domain Metrics').item.json.bounceRate.toFixed(2) }}",
+            "complaint_rate": "={{ $('Process Mailboxes with Domain Metrics').item.json.complaintRate.toFixed(3) }}",
+            "last_updated": "={{ new Date().toISOString() }}"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "First Name",
+              "displayName": "First Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Last Name",
+              "displayName": "Last Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "warmup_start_date",
+              "displayName": "warmup_start_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "current_limit",
+              "displayName": "current_limit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "days_active",
+              "displayName": "days_active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "health_status",
+              "displayName": "health_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "bounce_rate",
+              "displayName": "bounce_rate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "complaint_rate",
+              "displayName": "complaint_rate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "update_reason",
+              "displayName": "update_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_updated",
+              "displayName": "last_updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "e1090059-2cee-4925-b815-7e3e13642b37",
+      "name": "Update Mailbox in Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        4112,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1m5QDoX3IQD232d2n5o9JXrc8X0B2lT_csdel03Xt3Qo",
+          "mode": "list",
+          "cachedResultName": "Domain Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1m5QDoX3IQD232d2n5o9JXrc8X0B2lT_csdel03Xt3Qo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "WarmupHistory",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ new Date().toISOString() }}",
+            "email": "={{ $json.email }}",
+            "domain": "={{ $('Process Mailboxes with Domain Metrics').item.json.domain }}",
+            "campaign_id": "={{ $('Process Mailboxes with Domain Metrics').item.json.campaignId }}",
+            "previous_limit": "={{ $('Get Account Current Info').item.json.daily_limit || 0 }}",
+            "new_limit": "={{ $('Process Mailboxes with Domain Metrics').item.json.newLimit }}",
+            "increment": "={{ $('Process Mailboxes with Domain Metrics').item.json.increment }}",
+            "days_active": "={{ $('Process Mailboxes with Domain Metrics').item.json.daysActive }}",
+            "weeks_active": "={{ $('Process Mailboxes with Domain Metrics').item.json.weeksActive }}",
+            "sparkpost_stage": "={{ $('Process Mailboxes with Domain Metrics').item.json.summary.sparkpostStage }}",
+            "stage_limit": "={{ $('Process Mailboxes with Domain Metrics').item.json.summary.stageLimit }}",
+            "effective_limit": "={{ $('Process Mailboxes with Domain Metrics').item.json.summary.effectiveLimit }}",
+            "total_volume": "={{ $('Process Mailboxes with Domain Metrics').item.json.summary.totalCurrentVolume }}",
+            "health_status": "={{ $('Process Mailboxes with Domain Metrics').item.json.healthStatus }}",
+            "reason": "={{ $('Process Mailboxes with Domain Metrics').item.json.reason }}",
+            "ip_pool": "={{ $('Process Mailboxes with Domain Metrics').item.json.summary.ipPool }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "domain",
+              "displayName": "domain",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "previous_limit",
+              "displayName": "previous_limit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "new_limit",
+              "displayName": "new_limit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "increment",
+              "displayName": "increment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "days_active",
+              "displayName": "days_active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "weeks_active",
+              "displayName": "weeks_active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sparkpost_stage",
+              "displayName": "sparkpost_stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stage_limit",
+              "displayName": "stage_limit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "effective_limit",
+              "displayName": "effective_limit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_volume",
+              "displayName": "total_volume",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "health_status",
+              "displayName": "health_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reason",
+              "displayName": "reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ip_pool",
+              "displayName": "ip_pool",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "f8c7b157-8e2c-4f00-899c-a2d58d3bf820",
+      "name": "Log to WarmupHistory",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        4320,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 0.2
+      },
+      "id": "ff50d481-3eb5-44e8-92f8-7d68954b5382",
+      "name": "Post Update Delay",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4544,
+        928
+      ],
+      "webhookId": "db30d839-c4c8-4c12-86cf-13cc21a5fe04"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "check-done",
+              "leftValue": "={{ true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "8f63a00d-e1aa-49c4-b364-3aa5315af5f2",
+      "name": "Batch Done?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3440,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Group mailboxes by campaign and check campaign health\nconst mailboxes = $input.all();\nconst campaignGroups = {};\nconst campaignHealthChecks = {};\n\nfor (const item of mailboxes) {\n  const mb = item.json;\n  if (!mb.campaignId) continue;\n  \n  if (!campaignGroups[mb.campaignId]) {\n    campaignGroups[mb.campaignId] = [];\n    campaignHealthChecks[mb.campaignId] = {\n      totalMailboxes: 0,\n      pausedMailboxes: 0,\n      avgBounceRate: 0,\n      avgComplaintRate: 0,\n      createdAt: mb.aggregatedData.campaigns[mb.campaignId].created_at\n    };\n  }\n  campaignGroups[mb.campaignId].push(mb);\n  \n  const check = campaignHealthChecks[mb.campaignId];\n  check.totalMailboxes++;\n  if (mb.isPaused) check.pausedMailboxes++;\n  check.avgBounceRate += mb.bounceRate;\n  check.avgComplaintRate += mb.complaintRate;\n}\n\n// Calculate averages and determine if campaigns need pausing\nfor (const campaignId in campaignHealthChecks) {\n  const check = campaignHealthChecks[campaignId];\n  check.avgBounceRate = check.avgBounceRate / check.totalMailboxes;\n  check.avgComplaintRate = check.avgComplaintRate / check.totalMailboxes;\n  \n  // Calculate campaign age\n  const createdDate = new Date(check.createdAt);\n  const today = new Date();\n  const daysActive = Math.floor((today - createdDate) / (1000 * 60 * 60 * 24));\n  check.daysActive = daysActive;\n  check.weeksActive = Math.floor(daysActive / 7);\n  \n  // Determine if campaign should be paused\n  check.shouldPause = false;\n  check.pauseReasons = [];\n  \n  // More than 50% of mailboxes paused\n  if (check.pausedMailboxes / check.totalMailboxes > 0.5) {\n    check.shouldPause = true;\n    check.pauseReasons.push(`${check.pausedMailboxes}/${check.totalMailboxes} mailboxes paused`);\n  }\n  \n  // Average bounce rate too high - ADJUSTED FOR WARMUP\n  if (check.avgBounceRate > 10) {  // Changed from 3% to 10%\n    check.shouldPause = true;\n    check.pauseReasons.push(`High avg bounce rate: ${check.avgBounceRate.toFixed(1)}%`);\n  }\n  \n  // Average complaint rate too high - ADJUSTED FOR WARMUP\n  if (check.avgComplaintRate > 0.1) {  // Changed from 0.05% to 0.1%\n    check.shouldPause = true;\n    check.pauseReasons.push(`High avg complaint rate: ${check.avgComplaintRate.toFixed(3)}%`);\n  }\n}\n\n// Create items for each campaign that needs updating\nconst campaignUpdates = [];\nfor (const [campaignId, mailboxes] of Object.entries(campaignGroups)) {\n  const campaignData = mailboxes[0].aggregatedData.campaigns[campaignId];\n  const campaignVolume = mailboxes[0].summary.campaignVolumes[campaignId];\n  const healthCheck = campaignHealthChecks[campaignId];\n  \n  const newLimit = campaignVolume.projected;\n  const currentLimit = campaignData.daily_limit || 0;\n  \n  // Always include ALL campaigns for metrics logging\n  campaignUpdates.push({\n    json: {\n      campaignId,\n      campaignName: campaignData.name,\n      currentLimit,\n      newLimit,\n      mailboxCount: campaignVolume.mailboxCount,\n      shouldUpdate: Math.abs(newLimit - currentLimit) > 5 || healthCheck.shouldPause,\n      healthCheck,\n      currentStatus: campaignData.status\n    }\n  });\n}\n\nreturn campaignUpdates;"
+      },
+      "id": "d4b67441-e197-40d5-b1ac-a82bffb127ea",
+      "name": "Prepare Campaign Updates & Health Checks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3008,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "should-update-campaign",
+              "leftValue": "={{ true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e276ae84-f0a2-4422-acc7-57b2b1019072",
+      "name": "Should Update Campaigns?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3232,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "should-pause",
+              "leftValue": "={{ $json.healthCheck.shouldPause }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0aad64ad-e8ec-4f69-abb2-ba20622d95cc",
+      "name": "Should Pause Campaign?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3440,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.instantly.ai/api/v2/campaigns/{{ $json.campaignId }}/pause",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4229be1e-91c0-4285-9340-076a7c8b1f05",
+      "name": "Pause Campaign",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3664,
+        1632
+      ],
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.instantly.ai/api/v2/campaigns/{{ $json.campaignId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "daily_limit",
+              "value": "={{ $json.newLimit }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1d4b5800-c6cc-494f-8b94-7adf98ed6596",
+      "name": "Update Campaign Daily Limit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3664,
+        1328
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.instantly.ai/api/v2/campaigns/analytics?id={{ $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "f96e9e10-a053-4821-867c-2b6dbba538dc",
+      "name": "Get Campaign Analytics (Reply Rate)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3888,
+        1424
+      ],
+      "alwaysOutputData": false,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process all campaign items\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const analytics = item.json;\n  // Get the corresponding campaign data\n  const campaignData = $('Should Update Campaigns?').all()\n    .find(i => i.json.campaignId === analytics.campaign_id)?.json || {};\n  const healthCheck = campaignData.healthCheck || {};\n\n  // Calculate reply rate using the correct field names\n  const sent = analytics.emails_sent_count || 0;\n  const replied = analytics.reply_count || 0;\n  const replyRate = sent > 0 ? (replied / sent * 100) : 0;\n\n  // Check if campaign is over 2 weeks old with low reply rate\n  let shouldPauseForReplyRate = false;\n  let additionalPauseReason = '';\n\n  if (healthCheck.weeksActive >= 2 && replyRate < 1 && sent > 100) {\n    shouldPauseForReplyRate = true;\n    additionalPauseReason = `Low reply rate after ${healthCheck.weeksActive} weeks: ${replyRate.toFixed(2)}% (${replied}/${sent})`;\n  }\n\n  results.push({\n    json: {\n      ...campaignData,\n      analytics: {\n        sent,\n        replied,\n        replyRate\n      },\n      shouldPauseForReplyRate,\n      additionalPauseReason,\n      finalShouldPause: healthCheck.shouldPause || shouldPauseForReplyRate,\n      allPauseReasons: [...(healthCheck.pauseReasons || []), ...(additionalPauseReason ? [additionalPauseReason] : [])]\n    }\n  });\n}\n\nreturn results;"
+      },
+      "id": "3161407c-62a6-44b3-aa9a-c37f14e85289",
+      "name": "Check Reply Rate Health",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4112,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1m5QDoX3IQD232d2n5o9JXrc8X0B2lT_csdel03Xt3Qo",
+          "mode": "list",
+          "cachedResultName": "Domain Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1m5QDoX3IQD232d2n5o9JXrc8X0B2lT_csdel03Xt3Qo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "CampaignMetrics",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ new Date().toISOString() }}",
+            "campaign_id": "={{ $json.campaignId }}",
+            "campaign_name": "={{ $json.campaignName }}",
+            "sent": "={{ $json.analytics.sent || 0 }}",
+            "replied": "={{ $json.analytics.replied || 0 }}",
+            "reply_rate": "={{ $json.analytics.replyRate.toFixed(2) }}",
+            "daily_limit": "={{ $json.newLimit }}",
+            "mailbox_count": "={{ $json.mailboxCount }}",
+            "health_status": "={{ $json.finalShouldPause ? 'Paused' : 'Active' }}",
+            "pause_reasons": "={{ $json.allPauseReasons.join('; ') }}",
+            "weeks_active": "={{ $json.healthCheck.weeksActive }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "campaign_name",
+              "displayName": "campaign_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent",
+              "displayName": "sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "replied",
+              "displayName": "replied",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reply_rate",
+              "displayName": "reply_rate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "daily_limit",
+              "displayName": "daily_limit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "mailbox_count",
+              "displayName": "mailbox_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "health_status",
+              "displayName": "health_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pause_reasons",
+              "displayName": "pause_reasons",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "weeks_active",
+              "displayName": "weeks_active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "avg_domain_bounce_rate (from SparkPost)",
+              "displayName": "avg_domain_bounce_rate (from SparkPost)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "avg_domain_complaint_rate (from SparkPost)",
+              "displayName": "avg_domain_complaint_rate (from SparkPost)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "1dfcce63-a22e-41a8-98f4-ef8c76455f45",
+      "name": "Log Campaign Metrics",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        4320,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Comprehensive summary with campaign and domain breakdown\nconst allMailboxes = $('Process Mailboxes with Domain Metrics').all();\nconst firstItem = allMailboxes[0]?.json.summary || {};\n\n// Group by status and campaign\nconst statusGroups = {\n  updated: [],\n  held: [],\n  paused: [],\n  stuck: [],\n  atTarget: []\n};\n\nconst campaignSummaries = {};\nconst domainSummaries = {};\n\nfor (const item of allMailboxes) {\n  const mb = item.json;\n  \n  // Initialize campaign summary if needed\n  if (!campaignSummaries[mb.campaignId]) {\n    campaignSummaries[mb.campaignId] = {\n      name: mb.aggregatedData.campaigns[mb.campaignId]?.name || 'Unknown',\n      total: 0,\n      updated: 0,\n      healthy: 0,\n      issues: 0,\n      currentVolume: 0,\n      projectedVolume: 0\n    };\n  }\n  \n  // Initialize domain summary if needed\n  if (!domainSummaries[mb.domain]) {\n    domainSummaries[mb.domain] = {\n      mailboxCount: 0,\n      bounceRate: mb.bounceRate || 0,\n      complaintRate: mb.complaintRate || 0,\n      issues: 0\n    };\n  }\n  \n  const cs = campaignSummaries[mb.campaignId];\n  const ds = domainSummaries[mb.domain];\n  \n  cs.total++;\n  cs.currentVolume += mb.currentLimit;\n  cs.projectedVolume += mb.newLimit;\n  ds.mailboxCount++;\n  \n  if (mb.shouldUpdate) {\n    statusGroups.updated.push(`${mb.email}: ${mb.currentLimit} → ${mb.newLimit}`);\n    cs.updated++;\n  } else if (mb.isPaused) {\n    statusGroups.paused.push(`${mb.email}: ${mb.issues.join(', ')}`);\n    cs.issues++;\n    ds.issues++;\n  } else if (mb.healthStatus === 'stuck') {\n    statusGroups.stuck.push(`${mb.email}: ${mb.issues.join(', ')}`);\n    cs.issues++;\n  } else if (mb.currentLimit >= 40) {\n    statusGroups.atTarget.push(mb.email);\n  } else {\n    statusGroups.held.push(`${mb.email}: ${mb.currentLimit} (${mb.reason})`);\n  }\n  \n  if (mb.healthStatus === 'healthy') {\n    cs.healthy++;\n  }\n}\n\n// Format campaign summaries\nlet campaignBreakdown = '\\n\\n📊 Campaign Breakdown:';\nfor (const [id, summary] of Object.entries(campaignSummaries)) {\n  campaignBreakdown += `\\n\\n${summary.name}:`;\n  campaignBreakdown += `\\n• Mailboxes: ${summary.total}`;\n  campaignBreakdown += `\\n• Volume: ${summary.currentVolume} → ${summary.projectedVolume}/day`;\n  campaignBreakdown += `\\n• Updated: ${summary.updated}, Healthy: ${summary.healthy}`;\n  if (summary.issues > 0) {\n    campaignBreakdown += `\\n• ⚠️ Issues: ${summary.issues}`;\n  }\n}\n\n// Format problematic domains\nlet domainIssues = '';\nconst problematicDomains = Object.entries(domainSummaries)\n  .filter(([domain, data]) => data.bounceRate > 3 || data.complaintRate > 0.05 || data.issues > 0)\n  .sort((a, b) => b[1].bounceRate - a[1].bounceRate);\n\nif (problematicDomains.length > 0) {\n  domainIssues = '\\n\\n⚠️ Domain Issues:';\n  for (const [domain, data] of problematicDomains) {\n    domainIssues += `\\n• ${domain}: ${data.mailboxCount} mailboxes`;\n    if (data.bounceRate > 0) domainIssues += `, ${data.bounceRate.toFixed(1)}% bounce`;\n    if (data.complaintRate > 0) domainIssues += `, ${data.complaintRate.toFixed(3)}% complaints`;\n  }\n}\n\n// Check if all at target\nconst allAtTarget = statusGroups.atTarget.length === allMailboxes.length;\n\nreturn [{\n  json: {\n    timestamp: new Date().toISOString(),\n    sparkpostStage: firstItem.sparkpostStage,\n    stageLimit: firstItem.stageLimit,\n    effectiveLimit: firstItem.effectiveLimit,\n    ipPool: firstItem.ipPool,\n    totalMailboxes: firstItem.totalMailboxes,\n    currentVolume: firstItem.totalCurrentVolume,\n    projectedVolume: firstItem.projectedNewVolume,\n    volumeIncrease: firstItem.projectedNewVolume - firstItem.totalCurrentVolume,\n    percentOfLimit: Math.round((firstItem.projectedNewVolume / firstItem.effectiveLimit) * 100),\n    statusGroups,\n    campaignSummaries,\n    domainSummaries,\n    campaignBreakdown,\n    domainIssues,\n    healthIssues: firstItem.healthIssues,\n    allAtTarget,\n    summary: firstItem\n  }\n}];"
+      },
+      "id": "dfb3dbae-0bd5-4a7b-a97e-c3bd6785ad35",
+      "name": "Prepare Summary Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3008,
+        1824
+      ]
+    },
+    {
+      "parameters": {
+        "userKey": "YOUR_PUSHOVER_USER_KEY_HERE",
+        "message": "=📧 Email Warmup Progress ({{ $json.ipPool }})\n\nSparkPost Stage {{ $json.sparkpostStage }}: {{ $json.effectiveLimit }}/day capacity\nUsing {{ $json.percentOfLimit }}% of available limit\n\n📊 Overall Summary:\n• Total Mailboxes: {{ $json.totalMailboxes }}\n• Current Volume: {{ $json.currentVolume }}/day\n• New Volume: {{ $json.projectedVolume }}/day (+{{ $json.volumeIncrease }})\n\n✅ Updated: {{ $json.statusGroups.updated.length }}\n⏸️ Held: {{ $json.statusGroups.held.length }}\n🚫 Paused: {{ $json.statusGroups.paused.length }}\n⚠️ Stuck: {{ $json.statusGroups.stuck.length }}\n🎯 At Target: {{ $json.statusGroups.atTarget.length }}\n{{ $json.campaignBreakdown }}{{ $json.domainIssues }}\n\n{{ $json.allAtTarget ? '🎉 ALL MAILBOXES AT TARGET!' : 'Conservative warmup continuing...' }}",
+        "priority": 0,
+        "additionalFields": {
+          "title": "Warmup Progress Report"
+        }
+      },
+      "id": "97bb0a01-b005-4d77-a29b-d5f9922f97d3",
+      "name": "Send Progress Notification",
+      "type": "n8n-nodes-base.pushover",
+      "typeVersion": 1,
+      "position": [
+        3232,
+        1632
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "check-issues",
+              "leftValue": "={{ $json.healthIssues.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "932a0b6f-c440-49c3-940c-663ede8374bb",
+      "name": "Check for Health Issues",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3232,
+        1824
+      ]
+    },
+    {
+      "parameters": {
+        "userKey": "YOUR_PUSHOVER_USER_KEY_HERE",
+        "message": "=⚠️ Warmup Health Issues Detected\n\n{{ $json.healthIssues.length }} mailboxes have issues:\n\n{{ $json.healthIssues.map(h => `${h.email}:\\n${h.issues.map(i => '• ' + i).join('\\n')}`).join('\\n\\n') }}\n\nThese mailboxes may need manual attention.",
+        "priority": 1,
+        "additionalFields": {
+          "title": "Warmup Health Alert"
+        }
+      },
+      "id": "a1bf6290-0337-4a1b-a519-66821e0db9fe",
+      "name": "Send Health Alert",
+      "type": "n8n-nodes-base.pushover",
+      "typeVersion": 1,
+      "position": [
+        3440,
+        1824
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "check-complete",
+              "leftValue": "={{ $json.allAtTarget }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "31990b2f-1c1f-45e5-8835-3be3b6837a56",
+      "name": "Check if Complete",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3232,
+        2032
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "workflowId": {
+          "__rl": true,
+          "value": "={{ $workflow.id }}",
+          "mode": "id"
+        },
+        "requestOptions": {}
+      },
+      "id": "9e631493-9a65-4446-a8b3-9755254e0c24",
+      "name": "Disable This Workflow",
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        3440,
+        2032
+      ]
+    },
+    {
+      "parameters": {
+        "userKey": "YOUR_PUSHOVER_USER_KEY_HERE",
+        "message": "=🎉 EMAIL WARMUP COMPLETE!\n\nAll {{ $json.totalMailboxes }} mailboxes have reached the target of 40 emails/day.\n\nFinal Statistics:\n• Total Daily Volume: {{ $json.projectedVolume }} emails\n• SparkPost Stage: {{ $json.sparkpostStage }}\n• IP Pool: {{ $json.ipPool }}\n• Duration: 6 weeks\n\n{{ $json.campaignBreakdown }}\n\nThe warmup automation has been disabled.\n\nYour email infrastructure is now fully warmed and ready for production campaigns!",
+        "priority": 2,
+        "additionalFields": {
+          "title": "🎉 Warmup Complete!"
+        }
+      },
+      "id": "53fd6eac-7b7b-4294-a888-3cf1585e7ccd",
+      "name": "Send Completion Notification",
+      "type": "n8n-nodes-base.pushover",
+      "typeVersion": 1,
+      "position": [
+        3664,
+        2032
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Comprehensive error handling\nconst errors = [];\nconst items = $input.all();\n\nfor (const item of items) {\n  if (item.error) {\n    errors.push({\n      node: item.error.node?.name || 'Unknown',\n      message: item.error.message,\n      timestamp: new Date().toISOString(),\n      details: item.json || {}\n    });\n  }\n}\n\nif (errors.length > 0) {\n  return [{\n    json: {\n      hasErrors: true,\n      errorCount: errors.length,\n      errors,\n      message: `⚠️ Warmup Automation Errors\\n\\n${errors.length} errors detected:\\n\\n${errors.slice(0, 10).map(e => `• ${e.node}: ${e.message}`).join('\\n')}${errors.length > 10 ? `\\n\\n... and ${errors.length - 10} more` : ''}`\n    }\n  }];\n}\n\nreturn [{ json: { hasErrors: false } }];"
+      },
+      "id": "bed6a252-e382-4a23-a7d6-7462bd6d466d",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4112,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "has-errors",
+              "leftValue": "={{ $json.hasErrors }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "751818d5-8562-4546-bd24-268ae1a2feab",
+      "name": "Has Errors?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4320,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "userKey": "YOUR_PUSHOVER_USER_KEY_HERE",
+        "message": "={{ $json.message }}",
+        "priority": 2,
+        "additionalFields": {
+          "title": "⚠️ Warmup Error Alert"
+        }
+      },
+      "id": "d7e58d71-954d-4105-a492-9fadf2fc90ee",
+      "name": "Send Error Alert",
+      "type": "n8n-nodes-base.pushover",
+      "typeVersion": 1,
+      "position": [
+        4544,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Configuration Required:\n\n### 1. Airtable Setup:\nCreate base with 3 tables:\n- **Email Accounts**: Your existing table with added fields\n- **Warmup History**: Track daily progression  \n- **Domain Metrics**: SparkPost domain stats\n\n### 2. Update SparkPost IP Name:\nIn 'Get SparkPost IP Status' node, replace 'YOUR_IP_POOL_NAME' with your actual IP pool name (likely 'Default')\n\n### 3. Update Postal API Configuration:\nIn 'Get Postal Routes Status' node:\n- Replace 'YOUR_ORG_ID' with your Postal organization ID\n- Replace 'YOUR_SERVER_ID' with your Postal server ID\n- Configure Postal API credentials\n\n### 4. Update Airtable Base ID:\nIn all Airtable nodes, replace 'YOUR_AIRTABLE_BASE_ID' with your actual base ID\n\n### 5. Update Pushover Keys:\nReplace 'YOUR_PUSHOVER_USER_KEY_HERE' with your actual Pushover user key\n\n## Airtable Schema:\n\n### Email Accounts Table:\n- Email Address (text)\n- Daily Limit (number) \n- Sent Today (number)\n- Status (select: Active/Inactive/Paused)\n- Domain (formula: domain from email)\n- Warmup Start Date (date)\n- Days Active (formula: days since start)\n- Health Status (select: healthy/paused/stuck/error)\n- Bounce Rate (number)\n- Complaint Rate (number)\n- Last Updated (datetime)\n\n### Warmup History Table:\n- Timestamp, Email, Domain, Previous Limit, New Limit, \n- Increment, Days Active, Health Status, Reason\n\n### Domain Metrics Table:\n- Timestamp, Domain, Bounce Rate, Complaint Rate, \n- Targeted, Bounced, Complaints, Health Status",
+        "height": 1780,
+        "width": 380
+      },
+      "id": "65fd30c6-7804-43f6-b3f3-55ca28a42fab",
+      "name": "Setup Requirements",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        384,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## How to Start the Warmup Process:\n\n1. **Prepare Google Sheets**:\n   - Create spreadsheet with 3 sheets: Mailboxes, WarmupHistory, CampaignMetrics\n   - Add all your mailboxes to Mailboxes sheet with their campaign_id\n   - Leave warmup_start_date and current_limit empty for new mailboxes\n\n2. **Set Up Instantly Campaigns**:\n   - Create your warmup campaign(s) in Instantly\n   - Set sending schedule (e.g., 9 AM - 5 PM weekdays) and options\n   - Don't upload leads yet, just create empty campaigns\n\n3. **Configure & Activate Workflow**:\n   - Update all placeholders in this workflow\n   - Save and activate the workflow\n   - It will run every weekday at 6 AM\n\n4. **Upload Leads**:\n   - After first workflow run, mailboxes will be initialised\n   - Upload your leads to each campaign\n   - Start campaigns manually in Instantly\n\n5. **Monitoring**:\n   - Daily Pushover notifications show progress\n   - Campaigns auto-pause if health issues detected\n   - Reply rate monitored after 2 weeks\n   - Workflow auto-disables when complete\n\n## Campaign Pause Triggers:\n- Domain bounce rate > 10%\n- Domain complaint rate > 0.1%\n- >50% of campaign mailboxes paused\n- Reply rate < 1% after 2 weeks (with 100+ sent)",
+        "height": 920,
+        "width": 400
+      },
+      "id": "7b5adeab-dbc5-45ee-a779-a72527f2cb6c",
+      "name": "Workflow Start Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        768,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Data Sources:\n\n### From SparkPost (per domain):\n- Bounce rates\n- Complaint rates  \n- Unsubscribe counts\n- Delivered counts\n- Domain-level health metrics\n\n### From Instantly:\n- Sent count\n- Reply count & rate\n- Campaign status\n- Daily limits\n\n### Why this split?\n- SparkPost handles email delivery\n- Instantly tracks engagement\n- Domain metrics from SparkPost are more accurate for deliverability\n- Reply tracking from Instantly is campaign-specific",
+        "height": 520,
+        "width": 380
+      },
+      "id": "cabba116-e0bd-4c5c-96ef-8cb2f15c4d54",
+      "name": "Data Source Split",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.eu.sparkpost.com/api/v1/sending-ips?ip_pool=YOUR_IP_NAME",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "965b87b4-c790-4d43-a72c-de57a07829f0",
+      "name": "Get SparkPost IP Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1472,
+        1424
+      ],
+      "executeOnce": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Weekday Morning Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get All Mailboxes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Mailboxes": {
+      "main": [
+        [
+          {
+            "node": "Get SparkPost IP Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Campaign IDs": {
+      "main": [
+        [
+          {
+            "node": "Get Campaign Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Campaign Status": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Campaign & SparkPost Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Campaign & SparkPost Data": {
+      "main": [
+        [
+          {
+            "node": "Prepare Domain Metrics Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Domain Metrics Request": {
+      "main": [
+        [
+          {
+            "node": "Get SparkPost Domain Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get SparkPost Domain Metrics": {
+      "main": [
+        [
+          {
+            "node": "Process Mailboxes with Domain Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Mailboxes with Domain Metrics": {
+      "main": [
+        [
+          {
+            "node": "Filter Mailboxes to Update",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare Campaign Updates & Health Checks",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare Summary Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Mailboxes to Update": {
+      "main": [
+        [
+          {
+            "node": "Batch Process Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batch Process Updates": {
+      "main": [
+        [
+          {
+            "node": "Batch Done?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Account Current Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Account Current Info": {
+      "main": [
+        [
+          {
+            "node": "Rate Limit Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rate Limit Delay": {
+      "main": [
+        [
+          {
+            "node": "Update Account Daily Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Account Daily Limit": {
+      "main": [
+        [
+          {
+            "node": "Update Mailbox in Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Error Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Mailbox in Sheet": {
+      "main": [
+        [
+          {
+            "node": "Log to WarmupHistory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to WarmupHistory": {
+      "main": [
+        [
+          {
+            "node": "Post Update Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Update Delay": {
+      "main": [
+        [
+          {
+            "node": "Batch Process Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Campaign Updates & Health Checks": {
+      "main": [
+        [
+          {
+            "node": "Should Update Campaigns?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Update Campaigns?": {
+      "main": [
+        [
+          {
+            "node": "Should Pause Campaign?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Pause Campaign?": {
+      "main": [
+        [
+          {
+            "node": "Pause Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Campaign Daily Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Campaign Daily Limit": {
+      "main": [
+        [
+          {
+            "node": "Get Campaign Analytics (Reply Rate)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pause Campaign": {
+      "main": [
+        [
+          {
+            "node": "Get Campaign Analytics (Reply Rate)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Campaign Analytics (Reply Rate)": {
+      "main": [
+        [
+          {
+            "node": "Check Reply Rate Health",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Reply Rate Health": {
+      "main": [
+        [
+          {
+            "node": "Log Campaign Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Summary Report": {
+      "main": [
+        [
+          {
+            "node": "Send Progress Notification",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check for Health Issues",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check if Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Health Issues": {
+      "main": [
+        [
+          {
+            "node": "Send Health Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Complete": {
+      "main": [
+        [
+          {
+            "node": "Disable This Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Disable This Workflow": {
+      "main": [
+        [
+          {
+            "node": "Send Completion Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Handler": {
+      "main": [
+        [
+          {
+            "node": "Has Errors?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Errors?": {
+      "main": [
+        [
+          {
+            "node": "Send Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get SparkPost IP Status": {
+      "main": [
+        [
+          {
+            "node": "Prepare Campaign IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c140cfcc-9c4f-4bfe-80e2-42a066944986",
+  "meta": {
+    "instanceId": "ecb0bcf9dcb0922dfa494ad0d088d6d3617c079f96f4a75e224513884a22e5cf"
+  },
+  "id": "colyALbcqtUX2DeR",
+  "tags": []
+}

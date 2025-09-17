@@ -5,27 +5,26 @@ Comprehensive email infrastructure management system for cold email campaigns, d
 ## Architecture Overview
 
 ### **Complete Email Stack:**
-- **📤 Sending**: SparkPost (SMTP) - High deliverability email sending
-- **📥 Receiving**: Migadu (IMAP) - Email inbox management  
-- **🌐 Domain Forwarding**: Netlify - Domain-to-domain email routing
-- ** Domain Management**: Various sellers → Cloudflare nameservers
-- **⚡ Processing**: n8n workflows - Automated reply handling
+- **📤 Sending**: n8n workflows → Postal → SparkPost (dedicated IPs)
+- **📥 Receiving**: Postal webhooks → Inbox Management → (future: Otto AI)
+- **🌐 Domain Management**: Various sellers → Cloudflare nameservers
+- **⚡ Processing**: n8n workflows - Automated email campaigns and reply handling
 
 ### **Infrastructure Components:**
 - **Domain Strategy** - Multi-domain email campaigns
-- **SMTP Configuration** - SparkPost sending setup
-- **IMAP Integration** - Migadu inbox management
-- **Domain Forwarding** - Netlify email routing
+- **Postal Integration** - Email sending and receiving hub
+- **SparkPost Backend** - Dedicated IP email delivery
+- **Domain Management** - Cloudflare DNS configuration
 - **Client Configurations** - Scalable client email setups
 - **Campaign Infrastructure** - Cold email campaign support
-- **n8n Workflow Integration** - Automated reply processing
+- **n8n Workflow Integration** - Automated email processing and reply handling
 
 ## Current Infrastructure
 
 ### **Total Email Infrastructure:**
 - **93 Email Addresses** across **24 Domains**
 - **2 Active Clients** (PTC + ottomatik[ai])
-- **Mixed Providers** (Migadu + GoDaddy)
+- **Postal Server** - Centralized email hub
 - **Automated Processing** via n8n workflows
 
 ### **Client Breakdown:**
@@ -36,18 +35,18 @@ Comprehensive email infrastructure management system for cold email campaigns, d
 
 ### **1. Domain Management**
 ```
-Domain Purchase → Cloudflare Nameservers → Netlify Forwarding → Migadu Inboxes
+Domain Purchase → Cloudflare Nameservers → Postal Server
 ```
 
 ### **2. Sending Infrastructure**
-- **SparkPost SMTP** - Primary sending service
-- **High Deliverability** - Professional email delivery
-- **Campaign Management** - Bulk email sending
+- **n8n Workflows** - Campaign automation and lead management
+- **Postal Server** - Email hub and API
+- **SparkPost Backend** - Dedicated IP delivery via SMTP
 
 ### **3. Receiving Infrastructure**
-- **Migadu IMAP** - Primary inbox management
-- **GoDaddy/Outlook** - Secondary provider for specific domains
-- **Automated Processing** - n8n webhook integration
+- **Postal Server** - Centralized email receiving
+- **Webhook Integration** - Real-time reply processing
+- **n8n Inbox Management** - Automated reply handling
 
 ### **4. Domain Forwarding**
 - **Netlify** - Handles domain-to-domain email routing
@@ -56,10 +55,10 @@ Domain Purchase → Cloudflare Nameservers → Netlify Forwarding → Migadu Inb
 
 ## Quick Start
 
-1. **Access IMAP API**: `http://98.81.118.238:3000`
-2. **Import configurations** from `/mailboxes/` directory
-3. **Configure webhooks** for n8n integration
-4. **Monitor email processing** via webhook URLs
+1. **Configure Postal server** for email sending and receiving
+2. **Set up n8n workflows** for campaign automation
+3. **Configure webhooks** for Postal → n8n integration
+4. **Monitor email processing** via n8n workflow executions
 
 ## Repository Structure
 
@@ -106,25 +105,18 @@ Client mailboxes follow this standardized JSON structure:
       "name": "client-slug-email-identifier",
       "email": "email@domain.com",
       "from_name": "Contact Name",
-      "imap": {
-        "host": "imap.migadu.com",
-        "port": 993,
-        "secure": true,
-        "auth": {
-          "user": "email@domain.com",
-          "pass": "email-password"
-        }
+      "postal_integration": {
+        "server": "postal.ottomatik.ai",
+        "webhook_url": "https://n8n.ottomatik.ai/webhook/client-slug-inbox-management",
+        "campaign_tracking": true
       },
-      "webhook_enabled": true,
       "n8n_workflow": "https://n8n.ottomatik.ai/webhook/client-slug-inbox-management"
     }
   ],
-  "migadu_settings": {
-    "imap_server": "imap.migadu.com",
-    "imap_port": 993,
-    "security": "SSL/TLS",
-    "provider": "Migadu",
-    "domains": ["domain1.com", "domain2.com"]
+  "postal_settings": {
+    "server": "postal.ottomatik.ai",
+    "domains": ["domain1.com", "domain2.com"],
+    "webhook_processing": true
   }
 }
 ```
@@ -134,12 +126,9 @@ Client mailboxes follow this standardized JSON structure:
 - **`name`**: Unique identifier (format: `{slug}-{email-identifier}`)
 - **`email`**: Full email address
 - **`from_name`**: Display name for outgoing emails
-- **`imap.host`**: IMAP server (Migadu: `imap.migadu.com`)
-- **`imap.port`**: Port number (993 for SSL)
-- **`imap.secure`**: Boolean (true for SSL/TLS)
-- **`imap.auth.user`**: Email address for authentication
-- **`imap.auth.pass`**: Email password
-- **`webhook_enabled`**: Boolean for n8n integration
+- **`postal_integration.server`**: Postal server URL (postal.ottomatik.ai)
+- **`postal_integration.webhook_url`**: n8n webhook for reply processing
+- **`postal_integration.campaign_tracking`**: Boolean for tracking integration
 - **`n8n_workflow`**: Webhook URL for email processing
 
 ### Creating New Client Configuration
@@ -152,20 +141,15 @@ Client mailboxes follow this standardized JSON structure:
 
 ## Infrastructure Services
 
-### **IMAP API Access**
-- **URL**: http://98.81.118.238:3000
-- **Status**: ✅ Running
-- **Redis**: Connected to `n8n_ottomatik_ai_otto-redis:6379/7`
+### **Postal Server**
+- **URL**: postal.ottomatik.ai
+- **Purpose**: Centralized email sending and receiving hub
+- **Integration**: API-based email processing with webhook support
 
-### **SparkPost SMTP**
-- **Service**: Email sending platform
-- **Purpose**: High deliverability cold email campaigns
-- **Integration**: Direct SMTP configuration
-
-### **Migadu IMAP**
-- **Service**: Email inbox management
-- **Purpose**: Receiving and processing replies
-- **Integration**: IMAP API for automated processing
+### **SparkPost Backend**
+- **Service**: Dedicated IP email delivery
+- **Purpose**: High deliverability via professional SMTP infrastructure
+- **Integration**: Postal → SparkPost for actual email delivery
 
 ### **Netlify Domain Forwarding**
 - **Service**: Domain-to-domain email routing
@@ -186,7 +170,8 @@ Client mailboxes follow this standardized JSON structure:
 
 ### **Email Processing Flow**
 ```
-Incoming Email → Migadu IMAP → n8n Webhook → Automated Processing → Response
+n8n Campaign → Postal → SparkPost → Recipient
+Recipient Reply → Postal → n8n Webhook → Inbox Management → (future: Otto AI)
 ```
 
 ## Best Practices
@@ -197,9 +182,9 @@ Incoming Email → Migadu IMAP → n8n Webhook → Automated Processing → Resp
 - Maintain consistent naming conventions
 
 ### **Email Configuration**
-- Use SparkPost for sending campaigns
-- Configure Migadu for receiving replies
-- Set up proper webhook URLs for automation
+- Use Postal server as central email hub
+- Configure SparkPost backend for high deliverability
+- Set up webhook URLs for automated reply processing
 
 ### **Client Onboarding**
 - Copy template configuration
@@ -216,18 +201,17 @@ Incoming Email → Migadu IMAP → n8n Webhook → Automated Processing → Resp
 
 **If NO to any question, STOP and have them complete manual setup first.**
 
-### **Complete 11-Step Domain Setup Process:**
+### **Complete Domain Setup Process:**
 1. **Purchase domains**
 2. **Set up Google Workspace email alias** (`{slug}@ottomatik.ai`)
 3. **Create Cloudflare account** for client
 4. **Update domain nameservers** to Cloudflare
-5. **Add domains to Migadu** and copy verifier codes
-6. **Download BIND files** from Migadu and upload to Cloudflare
-7. **Verify domains** in Migadu
-8. **Add domains to SparkPost** and copy DKIM information
-9. **Provide DKIM and verifier codes** to Cursor for BIND file creation
-10. **Create and upload complete BIND files** to Cloudflare (separate file per domain, includes SparkPost, Migadu, Netlify)
-11. **Verify domains on SparkPost**
+5. **Add domains to Postal server** and configure routing
+6. **Add domains to SparkPost** and copy DKIM information
+7. **Create and upload complete BIND files** to Cloudflare (includes SparkPost, Postal, Netlify)
+8. **Verify domains on SparkPost**
+9. **Test Postal integration** and webhook delivery
+10. **Configure n8n workflows** for domain-specific processing
 
 ## Documentation
 

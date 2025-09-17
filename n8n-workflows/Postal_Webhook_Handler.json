@@ -1,0 +1,625 @@
+{
+  "name": "Postal Webhook Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "postal-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Postal Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{ $json.event }}",
+              "rightValue": "DeliverySucceeded",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "event-router",
+      "name": "Route Event Type",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{ $json.event }}",
+              "rightValue": "MessageBounced",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "bounce-router",
+      "name": "Route Bounce Events",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        460,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Handle Delivery Success - Schedule Follow-up\nconst webhookData = $input.first().json;\nconst messageId = webhookData.message.message_id;\nconst deliveryTime = webhookData.timestamp;\n\n// Extract Record ID directly from message ID\n// Format: <campaign-messageType-recordId@domain.com>\nconst recordId = messageId.split('-')[4].split('@')[0];\n\nreturn {\n  json: {\n    message_id: messageId,\n    delivery_time: deliveryTime,\n    event_type: 'DeliverySucceeded',\n    record_id: recordId\n  }\n};"
+      },
+      "id": "success-handler",
+      "name": "Handle Delivery Success",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "operation": "get",
+        "base": "appXXXXXXXXXXXXXX",
+        "table": "Outbound Leads",
+        "id": "={{ $json.record_id }}",
+      },
+      "id": "find-lead",
+      "name": "Find Lead by Message ID",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 3,
+      "position": [
+        900,
+        200
+      ],
+      "credentials": {
+        "airtableApi": {
+          "id": "airtable-credentials",
+          "name": "n8n | ottomatik[ai]"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check if this is the final message in campaign\nconst leadData = $input.first().json;\nconst currentSequence = leadData.fields['Message Sequence'] || 1;\nconst totalMessages = leadData.fields['Total Campaign Messages'] || 1;\nconst campaignId = leadData.fields['Campaign'];\n\n// Define follow-up delays by campaign\nconst followUpDelays = {\n  'Q1-SMYKM': {\n    'Initial': 3,\n    'Reply': 1,\n    'Follow-up': 7\n  },\n  'Follow-up-Campaign': {\n    'Initial': 5,\n    'Reply': 2,\n    'Follow-up': 10\n  },\n  'default': {\n    'Initial': 3,\n    'Reply': 1,\n    'Follow-up': 7\n  }\n};\n\nconst delays = followUpDelays[campaignId] || followUpDelays['default'];\nconst messageType = leadData.fields['Message Type'];\nconst delayDays = delays[messageType] || delays['Follow-up'];\n\n// Check if this is the final message\nconst isFinalMessage = currentSequence >= totalMessages;\n\nif (isFinalMessage) {\n  // Mark campaign as complete\n  return {\n    json: {\n      ...leadData,\n      action: 'campaign_complete',\n      next_message_send_date: null,\n      campaign_status: 'Complete'\n    }\n  };\n} else {\n  // Schedule next message\n  const nextMessageDate = new Date();\n  nextMessageDate.setDate(nextMessageDate.getDate() + delayDays);\n  \n  return {\n    json: {\n      ...leadData,\n      action: 'schedule_next',\n      next_message_send_date: nextMessageDate.toISOString().split('T')[0],\n      next_sequence: currentSequence + 1\n    }\n  };\n}"
+      },
+      "id": "schedule-logic",
+      "name": "Determine Follow-up Action",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "schedule_next",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "action-router",
+      "name": "Route Action",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": "appXXXXXXXXXXXXXX",
+        "table": "Outbound Leads",
+        "id": "={{ $json.fields['Next Message ID'] }}",
+        "fieldsToSend": "defined",
+        "fields": {
+          "Send Date": "={{ $json.next_message_send_date }}",
+          "Lead Status": "Queued",
+          "Message Sequence": "={{ $json.next_sequence }}"
+        }
+      },
+      "id": "schedule-next",
+      "name": "Schedule Next Message",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 3,
+      "position": [
+        1560,
+        120
+      ],
+      "credentials": {
+        "airtableApi": {
+          "id": "airtable-credentials",
+          "name": "n8n | ottomatik[ai]"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": "appXXXXXXXXXXXXXX",
+        "table": "Outbound Leads",
+        "id": "={{ $json.fields['id'] }}",
+        "fieldsToSend": "defined",
+        "fields": {
+          "Lead Status": "Campaign Complete",
+          "Campaign Status": "Complete",
+          "Completed At": "={{ $now }}"
+        }
+      },
+      "id": "mark-complete",
+      "name": "Mark Campaign Complete",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 3,
+      "position": [
+        1560,
+        280
+      ],
+      "credentials": {
+        "airtableApi": {
+          "id": "airtable-credentials",
+          "name": "n8n | ottomatik[ai]"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Handle Bounce Events - Smart Bounce Strategy\nconst webhookData = $input.first().json;\nconst messageId = webhookData.message.message_id;\nconst bounceType = webhookData.bounce.type; // 'soft' or 'hard'\nconst bounceReason = webhookData.bounce.reason;\nconst bounceDetails = webhookData.bounce.details;\nconst bounceTime = webhookData.timestamp;\n\n// Extract Record ID directly from message ID\n// Format: <campaign-messageType-recordId@domain.com>\nconst recordId = messageId.split('-')[4].split('@')[0];\n\n// Reputation killer bounces - NEVER retry\nconst reputationKillers = [\n  'content_rejected',\n  'greylisted', \n  'blocked'\n];\n\n// Safe to retry bounces (with limits)\nconst safeToRetry = [\n  'mailbox_full',\n  'temporary_failure',\n  'rate_limited'\n];\n\n// Determine action based on bounce reason\nlet action;\nlet retryDelay = null;\n\nif (bounceType === 'hard') {\n  // Never retry hard bounces\n  action = 'mark_invalid';\n} else if (reputationKillers.includes(bounceReason)) {\n  // Never retry reputation killers\n  action = 'mark_invalid';\n} else if (safeToRetry.includes(bounceReason)) {\n  // Safe to retry with limits\n  action = 'check_retry';\n  \n  // Set retry delays based on bounce reason\n  switch(bounceReason) {\n    case 'mailbox_full':\n      retryDelay = 48; // 48 hours\n      break;\n    case 'temporary_failure':\n      retryDelay = 24; // 24 hours\n      break;\n    case 'rate_limited':\n      retryDelay = 2; // 2 hours\n      break;\n  }\n} else {\n  // Unknown bounce reason - be conservative\n  action = 'mark_soft_bounce';\n}\n\nreturn {\n  json: {\n    message_id: messageId,\n    bounce_type: bounceType,\n    bounce_reason: bounceReason,\n    bounce_details: bounceDetails,\n    bounce_time: bounceTime,\n    action: action,\n    retry_delay_hours: retryDelay,\n    record_id: recordId\n  }\n};"
+      },
+      "id": "bounce-handler",
+      "name": "Handle Bounce Events",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "operation": "get",
+        "base": "appXXXXXXXXXXXXXX",
+        "table": "Outbound Leads",
+        "id": "={{ $json.record_id }}",
+      },
+      "id": "find-bounced-lead",
+      "name": "Find Bounced Lead",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 3,
+      "position": [
+        900,
+        360
+      ],
+      "credentials": {
+        "airtableApi": {
+          "id": "airtable-credentials",
+          "name": "n8n | ottomatik[ai]"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "check_retry",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "retry-check",
+      "name": "Check Retry Count",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": "appXXXXXXXXXXXXXX",
+        "table": "Outbound Leads",
+        "id": "={{ $json.fields['id'] }}",
+        "fieldsToSend": "defined",
+        "fields": {
+          "Lead Status": "Invalid Email",
+          "Bounce Type": "={{ $json.bounce_type }}",
+          "Bounce Reason": "={{ $json.bounce_reason }}",
+          "Bounce Details": "={{ $json.bounce_details }}",
+          "Bounce Date": "={{ $json.bounce_time }}",
+          "Invalid Email": true
+        }
+      },
+      "id": "mark-invalid",
+      "name": "Mark as Invalid Email",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 3,
+      "position": [
+        1340,
+        240
+      ],
+      "credentials": {
+        "airtableApi": {
+          "id": "airtable-credentials",
+          "name": "n8n | ottomatik[ai]"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check if we should retry or give up\nconst leadData = $input.first().json;\nconst bounceData = $input.first().json;\nconst retryCount = leadData.fields['Retry Count'] || 0;\nconst maxRetries = 1; // Only retry once\n\nif (retryCount < maxRetries) {\n  // Schedule retry\n  const retryDate = new Date();\n  retryDate.setHours(retryDate.getHours() + bounceData.retry_delay_hours);\n  \n  return {\n    json: {\n      ...leadData,\n      ...bounceData,\n      action: 'schedule_retry',\n      retry_date: retryDate.toISOString(),\n      new_retry_count: retryCount + 1\n    }\n  };\n} else {\n  // Too many retries - mark as soft bounce\n  return {\n    json: {\n      ...leadData,\n      ...bounceData,\n      action: 'mark_soft_bounce'\n    }\n  };\n}"
+      },
+      "id": "retry-logic",
+      "name": "Retry Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": "appXXXXXXXXXXXXXX",
+        "table": "Outbound Leads",
+        "id": "={{ $json.fields['id'] }}",
+        "fieldsToSend": "defined",
+        "fields": {
+          "Lead Status": "Soft Bounce",
+          "Bounce Type": "={{ $json.bounce_type }}",
+          "Bounce Reason": "={{ $json.bounce_reason }}",
+          "Bounce Details": "={{ $json.bounce_details }}",
+          "Bounce Date": "={{ $json.bounce_time }}",
+          "Retry Count": "={{ $json.new_retry_count }}",
+          "Retry Date": "={{ $json.retry_date }}"
+        }
+      },
+      "id": "schedule-retry",
+      "name": "Schedule Retry",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 3,
+      "position": [
+        1560,
+        480
+      ],
+      "credentials": {
+        "airtableApi": {
+          "id": "airtable-credentials",
+          "name": "n8n | ottomatik[ai]"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": "appXXXXXXXXXXXXXX",
+        "table": "Outbound Leads",
+        "id": "={{ $json.fields['id'] }}",
+        "fieldsToSend": "defined",
+        "fields": {
+          "Lead Status": "Soft Bounce",
+          "Bounce Type": "={{ $json.bounce_type }}",
+          "Bounce Reason": "={{ $json.bounce_reason }}",
+          "Bounce Details": "={{ $json.bounce_details }}",
+          "Bounce Date": "={{ $json.bounce_time }}"
+        }
+      },
+      "id": "mark-soft-bounce",
+      "name": "Mark as Soft Bounce",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 3,
+      "position": [
+        1560,
+        600
+      ],
+      "credentials": {
+        "airtableApi": {
+          "id": "airtable-credentials",
+          "name": "n8n | ottomatik[ai]"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"success\", \"message\": \"Webhook processed\" } }}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1780,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Postal Webhook": {
+      "main": [
+        [
+          {
+            "node": "Route Event Type",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Route Bounce Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Event Type": {
+      "main": [
+        [
+          {
+            "node": "Handle Delivery Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Bounce Events": {
+      "main": [
+        [
+          {
+            "node": "Handle Bounce Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Delivery Success": {
+      "main": [
+        [
+          {
+            "node": "Find Lead by Message ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Lead by Message ID": {
+      "main": [
+        [
+          {
+            "node": "Determine Follow-up Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Determine Follow-up Action": {
+      "main": [
+        [
+          {
+            "node": "Route Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Action": {
+      "main": [
+        [
+          {
+            "node": "Schedule Next Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Campaign Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Bounce Events": {
+      "main": [
+        [
+          {
+            "node": "Find Bounced Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Bounced Lead": {
+      "main": [
+        [
+          {
+            "node": "Check Retry Count",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Retry Count": {
+      "main": [
+        [
+          {
+            "node": "Retry Logic",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark as Invalid Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Logic": {
+      "main": [
+        [
+          {
+            "node": "Schedule Retry",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark as Soft Bounce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Next Message": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Campaign Complete": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as Invalid Email": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Retry": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as Soft Bounce": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-15T10:30:00.000Z",
+  "versionId": "1"
+}
