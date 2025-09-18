@@ -1,7 +1,7 @@
 smartbdr.co.	1	IN	A	75.2.60.5 ; cf_tags=cf-proxied:false
 www.smartbdr.co.	1	IN	CNAME	sensational-gnome-9c8637.netlify.app. ; cf_tags=cf-proxied:false
 psrp.smartbdr.co.	300	IN	CNAME	rp.postal.ottomatik.ai. ; cf_tags=cf-proxied:false
-track.smartbdr.co.	1	IN	CNAME	postal.ottomatik.ai. ; cf_tags=cf-proxied:false
+track.smartbdr.co.	1	IN	CNAME	spgo.io. ; cf_tags=cf-proxied:false
 smartbdr.co.	300	IN	MX	10	mx.postal.ottomatik.ai.
 smartbdr.co.	300	IN	TXT	"v=spf1 a mx include:spf.postal.ottomatik.ai include:_spf.sparkpostmail.com ~all"
 _dmarc.smartbdr.co.	300	IN	TXT	"v=DMARC1; p=reject; rua=mailto:bryce@ottomatik.ai"
